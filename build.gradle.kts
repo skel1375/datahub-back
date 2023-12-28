@@ -50,6 +50,10 @@ subprojects {
 
 		// test
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+		//swagger
+		implementation("io.springfox:springfox-swagger-ui:3.0.0")
+		implementation("io.springfox:springfox-boot-starter:3.0.0")
 	}
 
 	dependencyManagement {
@@ -85,6 +89,7 @@ project(":datahub-app-external-api") {
 	dependencies {
 		implementation(project(":domain:domain-login"))
 		implementation(project(":domain:domain-post"))
+		implementation(project(":domain:domain-qa"))
 	}
 }
 
@@ -115,6 +120,15 @@ project(":domain:domain-system") {
 	bootJar.enabled = false
 	jar.enabled = true
 }
+
+project(":domain:domain-qa") {
+	val jar: Jar by tasks
+	val bootJar: BootJar by tasks
+
+	bootJar.enabled = false
+	jar.enabled = true
+}
+
 project(":domain")
 {
 	val jar:Jar by tasks

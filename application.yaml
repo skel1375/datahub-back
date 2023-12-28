@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/datahub?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: root
+    password: 990923
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAS2CDD6SEONU6LXFV
+      secretKey: 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
+    s3:
+      bucket: knudatahub
+      dir: /
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+
+
