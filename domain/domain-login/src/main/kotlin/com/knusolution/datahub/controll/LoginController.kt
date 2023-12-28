@@ -4,11 +4,7 @@ import com.knusolution.datahub.domain.JoinRequest
 import com.knusolution.datahub.domain.LoginRequest
 import com.knusolution.datahub.application.LoginService
 import com.knusolution.datahub.domain.UpdateRequest
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class LoginController(
