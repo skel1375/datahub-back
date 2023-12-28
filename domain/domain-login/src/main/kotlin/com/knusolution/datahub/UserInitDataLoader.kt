@@ -21,6 +21,7 @@ class UserInitDataLoader(
             departmentName = "",
             role = Role.ADMIN
         )
-        userRepository.save(user.asEntity(password = "admin"))
+        if(!userRepository.existsByLoginId("admin"))
+            userRepository.save(user.asEntity(password = "admin"))
     }
 }
