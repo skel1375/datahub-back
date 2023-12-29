@@ -6,8 +6,10 @@ import com.knusolution.datahub.domain.ReplyResponse
 import com.knusolution.datahub.domain.asDto
 import com.knusolution.datahub.domain.asInfoDto
 import org.apache.el.parser.BooleanNode
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
@@ -15,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController
 class QAController(
     private val qaService : QAService
 ){
-    @GetMapping("/qas")
+    @GetMapping("/qa")
     fun getQas(
         @RequestParam page:Int
     ): QAInfoResponse
@@ -25,7 +27,7 @@ class QAController(
         return QAInfoResponse(allPage=allPage, page=page, qas=qas)
     }
 
-    @PostMapping("/addition-qa")
+    @PostMapping("/qa/addition")
     fun saveQa(
         @RequestParam userId:Long,
         @RequestParam qaTitle:String,
@@ -35,7 +37,7 @@ class QAController(
         qaService.saveQa(userId,qaTitle,qaContent)
     }
 
-    @PostMapping("/modi-qa")
+    @PutMapping("/qa/modi")
     fun updateQa(
         @RequestParam userId: Long,
         @RequestParam qaId: Long,
@@ -46,7 +48,7 @@ class QAController(
         return qaService.updateQa(userId,qaId,updateTitle,updateContent)
     }
 
-    @PostMapping("/del-qa")
+    @DeleteMapping("/qa/del")
     fun delQa(
         @RequestParam userId: Long,
         @RequestParam qaId: Long
@@ -55,7 +57,7 @@ class QAController(
         return qaService.delQa(userId,qaId)
     }
 
-    @GetMapping("/replys")
+    @GetMapping("/reply")
     fun getQaContentReply(
         @RequestParam qaId: Long
     ): ReplyResponse
@@ -67,7 +69,7 @@ class QAController(
         return ReplyResponse(qa=qa,content=content, replys = replys)
     }
 
-    @PostMapping("/addition-reply")
+    @PostMapping("/reply/addition")
     fun saveReply(
         @RequestParam userId:Long,
         @RequestParam qaId:Long,
@@ -77,7 +79,7 @@ class QAController(
         qaService.saveReply(userId = userId, qaId = qaId, replyContent = replyContent)
     }
 
-    @PostMapping("/modi-reply")
+    @PutMapping("/reply/modi")
     fun updateReply(
         @RequestParam userId: Long,
         @RequestParam replyId:Long,
@@ -87,7 +89,7 @@ class QAController(
         return qaService.updateReply(userId=userId,replyId = replyId, updateContent = updateContent)
     }
 
-    @PostMapping("/del-reply")
+    @DeleteMapping("/reply/del")
     fun delReply(
         @RequestParam userId: Long,
         @RequestParam replyId: Long
