@@ -44,7 +44,7 @@ class NoticeService(
     }
     @Transactional
     fun saveNotice(userId: Long, noticeTitle: String, noticeContent: String) {
-        val user = findUser(userId)
+        val user = findUserById(userId)
         if(user.role != Role.ADMIN) {
             throw IllegalArgumentException("관리자만 공지사항을 작성할 수 있습니다.")
         }
@@ -55,8 +55,8 @@ class NoticeService(
 
     @Transactional
     fun updateNotice(userId: Long, noticeId: Long, noticeTitle: String, noticeContent: String){
-        val notice = noticeRepository.findById(noticeId).get()
-        val user = findUser(userId)
+        val notice = findNoticeById(noticeId)
+        val user = findUserById(userId)
         if(user.userId != notice.user.userId){
             throw IllegalArgumentException("작성자만 수정할 수 있습니다.")
         }
@@ -68,18 +68,25 @@ class NoticeService(
 
     @Transactional
     fun deleteNotice(userId: Long,noticeId: Long){
-        val user = findUser(userId)
-        val notice = noticeRepository.findById(noticeId).get()
+        val user = findUserById(userId)
+        val notice = findNoticeById(noticeId)
         if(user.userId != notice.user.userId){
             throw IllegalArgumentException("작성자만 삭제할 수 있습니다.")
         }
         noticeRepository.deleteById(noticeId)
     }
 
-    fun findUser(userId: Long): UserEntity{
+    fun findUserById(userId: Long): UserEntity{
         val user = userRepository.findById(userId).orElseThrow {
-            IllegalArgumentException("Invalid noticeId: $userId 존재하지 않는 유저입니다.")
+            NoSuchElementException("Invalid userId: $userId 존재하지 않는 유저입니다.")
         }
         return user
+    }
+
+    fun findNoticeById(noticeId: Long): NoticeEntity{
+        val notice = noticeRepository.findById(noticeId).orElseThrow {
+            NoSuchElementException("Invalid noticeId : $noticeId 존재하지 않는 게시글입니다.")
+        }
+        return notice
     }
 }

@@ -7,7 +7,7 @@ data class NoticeInfoDto(
 )
 
 fun NoticeEntity.asInfoDto() = NoticeInfoDto(
-        noticeId = this.user.userId,
+        noticeId = this.noticeId,
         noticeTitle = this.noticeTitle,
         noticeDate  = this.noticeDate
 )
