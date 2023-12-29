@@ -11,24 +11,23 @@ data class NoticeEntity(
 
         @ManyToOne(fetch = FetchType.LAZY)
         @JoinColumn(name = "user_id")
-        val userId: UserEntity,
+        val user: UserEntity,
 
         @NotNull
         @Column
-        val noticeTitle: String,
+        var noticeTitle: String,
 
         @NotNull
         @Column
-        val noticeDate: String,
+        var noticeDate: String,
 
         @NotNull
         @Column
-        val noticeContent: String
+        var noticeContent: String
 )
 
 fun NoticeDto.asEntity() = NoticeEntity(
-        noticeId = this.noticeId,
-        userId = this.userId,
+        user = this.user,
         noticeTitle = this.noticeTitle,
         noticeDate = this.noticeDate,
         noticeContent = this.noticeContent

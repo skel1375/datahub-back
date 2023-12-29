@@ -1,16 +1,14 @@
 package com.knusolution.datahub.domain
 
 data class NoticeDto(
-        val noticeId: Long,
-        val userId: UserEntity,
-        val noticeDate: String,
-        val noticeTitle: String,
-        val noticeContent: String
+        val user: UserEntity,
+        var noticeDate: String,
+        var noticeTitle: String,
+        var noticeContent: String
 )
 
 fun NoticeEntity.asDto() = NoticeDto(
-        noticeId = this.noticeId,
-        userId = this.userId,
+        user = this.user,
         noticeDate = this.noticeDate,
         noticeTitle = this.noticeTitle,
         noticeContent = this.noticeContent
