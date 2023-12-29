@@ -1,8 +1,8 @@
 package com.knusolution.datahub.controll
 
 import com.knusolution.datahub.application.NoticeService
-import com.knusolution.datahub.domain.NoticeDto
-import com.knusolution.datahub.domain.NoticeResponse
+import com.knusolution.datahub.domain.NoticeInfoResponse
+import com.knusolution.datahub.domain.NoticeModalResponse
 import com.knusolution.datahub.domain.asInfoDto
 import org.springframework.web.bind.annotation.*
 
@@ -11,38 +11,29 @@ class NoticeController(
         private val noticeService: NoticeService
 ) {
     @GetMapping("/notices")
-    fun getNotices(
-            @RequestParam page: Int
-    ): NoticeResponse? {
+    fun getNotices(@RequestParam page: Int): NoticeInfoResponse? {
         val allPage = noticeService.getNoticePage()
         val notices = noticeService.getNotice(page).map { it.asInfoDto() }
-        return NoticeResponse(allPage = allPage, page = page, notices = notices)
+        return NoticeInfoResponse(allPage = allPage, page = page, notices = notices)
     }
+    @GetMapping("/notice")
+    fun getNotice(@RequestParam noticeId: Long): NoticeModalResponse? {
+        return noticeService.getNoticeData(noticeId)
+    }
+
     @PostMapping("/notice/post")
     fun saveNotice(@RequestBody request: SaveNoticeRequest) {
-        try {
-            noticeService.saveNotice(request.userId,request.noticeTitle,request.noticeContent)
-        } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("관리자만 공지사항을 작성할 수 있습니다.")
-        }
+        noticeService.saveNotice(request.userId,request.noticeTitle,request.noticeContent)
     }
 
     @PutMapping("notice/update")
     fun updateNotice(@RequestBody request:UpdateNoticeRequest) {
-        try {
-            noticeService.updateNotice(request.userId,request.noticeId,request.noticeTitle,request.noticeContent)
-        } catch (e: IllegalArgumentException) {
-            throw IllegalArgumentException("작성자만 수정할 수 있습니다.")
-        }
+        noticeService.updateNotice(request.userId,request.noticeId,request.noticeTitle,request.noticeContent)
     }
 
     @DeleteMapping("notice/delete")
     fun deleteNotice(@RequestBody request: DeleteNoticeRequest) {
-       try{
-           noticeService.deleteNotice(request.userId, request.noticeId)
-       } catch (e: IllegalArgumentException){
-           throw IllegalArgumentException("작성자만 삭제할 수 있습니다.")
-       }
+        noticeService.deleteNotice(request.userId, request.noticeId)
     }
 }
 

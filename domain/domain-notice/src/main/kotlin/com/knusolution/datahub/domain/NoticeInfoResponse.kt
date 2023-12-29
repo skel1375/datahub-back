@@ -1,6 +1,6 @@
 package com.knusolution.datahub.domain
 
-data class NoticeResponse(
+data class NoticeInfoResponse(
         val allPage:Int,
         val page:Int,
         val notices: List<NoticeInfoDto>

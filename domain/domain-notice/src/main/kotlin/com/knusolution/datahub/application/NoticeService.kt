@@ -33,9 +33,18 @@ class NoticeService(
         val endIndex = startIndex + pageSize
         return notices.subList(startIndex, minOf(endIndex, notices.size))
     }
+    @Transactional(readOnly = true)
+    fun getNoticeData(noticeId: Long): NoticeModalResponse? {
+        try{
+            val notice = noticeRepository.findById(noticeId).get()
+            return NoticeModalResponse(notice.noticeTitle,notice.noticeContent)
+        } catch (e: NullPointerException) {
+            throw NullPointerException("존재하지 않는 게시물입니다.")
+        }
+    }
     @Transactional
     fun saveNotice(userId: Long, noticeTitle: String, noticeContent: String) {
-        val user = userRepository.findById(userId).get()
+        val user = findUser(userId)
         if(user.role != Role.ADMIN) {
             throw IllegalArgumentException("관리자만 공지사항을 작성할 수 있습니다.")
         }
@@ -47,7 +56,7 @@ class NoticeService(
     @Transactional
     fun updateNotice(userId: Long, noticeId: Long, noticeTitle: String, noticeContent: String){
         val notice = noticeRepository.findById(noticeId).get()
-        val user = userRepository.findById(userId).get()
+        val user = findUser(userId)
         if(user.userId != notice.user.userId){
             throw IllegalArgumentException("작성자만 수정할 수 있습니다.")
         }
@@ -59,11 +68,18 @@ class NoticeService(
 
     @Transactional
     fun deleteNotice(userId: Long,noticeId: Long){
-        val user = userRepository.findById(userId).get()
+        val user = findUser(userId)
         val notice = noticeRepository.findById(noticeId).get()
         if(user.userId != notice.user.userId){
             throw IllegalArgumentException("작성자만 삭제할 수 있습니다.")
         }
         noticeRepository.deleteById(noticeId)
+    }
+
+    fun findUser(userId: Long): UserEntity{
+        val user = userRepository.findById(userId).orElseThrow {
+            IllegalArgumentException("Invalid noticeId: $userId 존재하지 않는 유저입니다.")
+        }
+        return user
     }
 }
