@@ -22,6 +22,8 @@ class NoticeService(
         }
         return allPage
     }
+
+    //해당 페이지에 있는 공지사항을 리스트로 반환
     @Transactional(readOnly = true)
     fun getNotice(page: Int): List<NoticeEntity> {
        val notices = noticeRepository.findAll().reversed()
@@ -33,19 +35,18 @@ class NoticeService(
         val endIndex = startIndex + pageSize
         return notices.subList(startIndex, minOf(endIndex, notices.size))
     }
+
+    //모달 띄울 때 정보 요청, 필요 시 사용
     @Transactional(readOnly = true)
     fun getNoticeData(noticeId: Long): NoticeModalResponse? {
-        try{
-            val notice = noticeRepository.findById(noticeId).get()
-            return NoticeModalResponse(notice.noticeTitle,notice.noticeContent)
-        } catch (e: NullPointerException) {
-            throw NullPointerException("존재하지 않는 게시물입니다.")
-        }
+        val notice = findNoticeById(noticeId)
+        return NoticeModalResponse(notice.noticeTitle,notice.noticeContent)
     }
+
     @Transactional
-    fun saveNotice(userId: Long, noticeTitle: String, noticeContent: String) {
-        val user = findUserById(userId)
-        if(user.role != Role.ADMIN) {
+    fun saveNotice(loginId: String, noticeTitle: String, noticeContent: String) {
+        val user = findUserByLoginId(loginId)
+        if(user?.role != Role.ADMIN) {
             throw IllegalArgumentException("관리자만 공지사항을 작성할 수 있습니다.")
         }
         val datetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
@@ -54,10 +55,10 @@ class NoticeService(
     }
 
     @Transactional
-    fun updateNotice(userId: Long, noticeId: Long, noticeTitle: String, noticeContent: String){
+    fun updateNotice(loginId: String, noticeId: Long, noticeTitle: String, noticeContent: String){
         val notice = findNoticeById(noticeId)
-        val user = findUserById(userId)
-        if(user.userId != notice.user.userId){
+        val user = findUserByLoginId(loginId)
+        if(user?.userId != notice.user.userId){
             throw IllegalArgumentException("작성자만 수정할 수 있습니다.")
         }
         val datetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
@@ -67,18 +68,19 @@ class NoticeService(
     }
 
     @Transactional
-    fun deleteNotice(userId: Long,noticeId: Long){
-        val user = findUserById(userId)
+    fun deleteNotice(loginId: String,noticeId: Long){
+        val user = findUserByLoginId(loginId)
         val notice = findNoticeById(noticeId)
-        if(user.userId != notice.user.userId){
+        if(user?.userId != notice.user.userId){
             throw IllegalArgumentException("작성자만 삭제할 수 있습니다.")
         }
         noticeRepository.deleteById(noticeId)
     }
 
-    fun findUserById(userId: Long): UserEntity{
-        val user = userRepository.findById(userId).orElseThrow {
-            NoSuchElementException("Invalid userId: $userId 존재하지 않는 유저입니다.")
+    fun findUserByLoginId(loginId: String): UserEntity?{
+        val user = userRepository.findByLoginId(loginId)
+        if(user == null){
+            throw NoSuchElementException("Invalid loginId : $loginId 존재하지 않는 아이디입니다.")
         }
         return user
     }
