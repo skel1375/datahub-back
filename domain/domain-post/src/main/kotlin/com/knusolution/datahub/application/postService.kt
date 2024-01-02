@@ -112,6 +112,4 @@ class PostService(
     private fun getSaveFileName(originalFilename: String?): String {
         return UUID.randomUUID().toString() + "-" + originalFilename
     }
-
-
 }

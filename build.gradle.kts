@@ -48,6 +48,10 @@ subprojects {
 		// DB
 		runtimeOnly("mysql:mysql-connector-java:8.0.25")
 
+		//swagger
+		implementation("io.springfox:springfox-swagger-ui:3.0.0")
+		implementation("io.springfox:springfox-boot-starter:3.0.0")
+
 		// test
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
 

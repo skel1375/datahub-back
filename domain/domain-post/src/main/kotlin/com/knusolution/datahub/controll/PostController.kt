@@ -45,6 +45,5 @@ class PostController(
     ){
         postService.postDeclineFile(articleId, approval, declineDetail, file)
     }
-
 }
 
