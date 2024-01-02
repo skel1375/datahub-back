@@ -39,6 +39,9 @@ class LoginService(
             val systemIds = it.systems.toList().map { system -> system.systemId }
             if(req.password == it.password) it.asUserDto(systemIds = systemIds) else null
         }
+
+
+
         return userDto?.asLoginResponse(accessToken = "")
     }
     fun exitsUserByLoginId(loginId:String) = userRepository.existsByLoginId(loginId)

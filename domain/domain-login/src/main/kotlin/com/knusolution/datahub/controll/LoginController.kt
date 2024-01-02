@@ -15,9 +15,13 @@ class LoginController(
     private val loginService: LoginService
 ){
     @PostMapping("/join/user")
-    fun registerUser(@RequestBody req: JoinRequest){
-        if(!loginService.exitsUserByLoginId(req.loginId))
+    fun registerUser(@RequestBody req: JoinRequest):Boolean
+    {
+        if(!loginService.exitsUserByLoginId(req.loginId)) {
             loginService.registerUser(req)
+            return true
+        }
+        return false
     }
     @PostMapping("/users")
     fun loginUser(@RequestBody req: LoginRequest) = loginService.loginUser(req)
