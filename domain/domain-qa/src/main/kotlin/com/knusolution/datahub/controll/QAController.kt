@@ -29,32 +29,32 @@ class QAController(
 
     @PostMapping("/qa/addition")
     fun saveQa(
-        @RequestParam userId:Long,
+        @RequestParam loginId:String,
         @RequestParam qaTitle:String,
         @RequestParam qaContent:String
     )
     {
-        qaService.saveQa(userId,qaTitle,qaContent)
+        qaService.saveQa(loginId,qaTitle,qaContent)
     }
 
     @PutMapping("/qa/modi")
     fun updateQa(
-        @RequestParam userId: Long,
+        @RequestParam loginId: String,
         @RequestParam qaId: Long,
         @RequestParam updateTitle: String,
         @RequestParam updateContent: String,
     ):Boolean
     {
-        return qaService.updateQa(userId,qaId,updateTitle,updateContent)
+        return qaService.updateQa(loginId,qaId,updateTitle,updateContent)
     }
 
     @DeleteMapping("/qa/del")
     fun delQa(
-        @RequestParam userId: Long,
+        @RequestParam loginId: String,
         @RequestParam qaId: Long
     ):Boolean
     {
-        return qaService.delQa(userId,qaId)
+        return qaService.delQa(loginId,qaId)
     }
 
     @GetMapping("/reply")
@@ -71,30 +71,30 @@ class QAController(
 
     @PostMapping("/reply/addition")
     fun saveReply(
-        @RequestParam userId:Long,
+        @RequestParam loginId: String,
         @RequestParam qaId:Long,
         @RequestParam replyContent:String
     )
     {
-        qaService.saveReply(userId = userId, qaId = qaId, replyContent = replyContent)
+        qaService.saveReply(loginId = loginId, qaId = qaId, replyContent = replyContent)
     }
 
     @PutMapping("/reply/modi")
     fun updateReply(
-        @RequestParam userId: Long,
+        @RequestParam loginId: String,
         @RequestParam replyId:Long,
         @RequestParam updateContent: String
     ):Boolean
     {
-        return qaService.updateReply(userId=userId,replyId = replyId, updateContent = updateContent)
+        return qaService.updateReply(loginId = loginId,replyId = replyId, updateContent = updateContent)
     }
 
     @DeleteMapping("/reply/del")
     fun delReply(
-        @RequestParam userId: Long,
+        @RequestParam loginId: String,
         @RequestParam replyId: Long
     ):Boolean
     {
-        return qaService.delReply(userId=userId,replyId = replyId)
+        return qaService.delReply(loginId = loginId ,replyId = replyId)
     }
 }

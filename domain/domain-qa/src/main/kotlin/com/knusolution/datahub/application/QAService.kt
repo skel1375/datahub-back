@@ -36,43 +36,50 @@ class QAService(
         return qas.subList(startIndex,minOf(endIndex,qas.size))
     }
 
-    fun saveQa(userId : Long, qaTitle: String, qaContent: String)
+    fun saveQa(loginId : String, qaTitle: String, qaContent: String)
     {
-        val existUser = userRepository.findById(userId)
-        val user = existUser.get()
+        val user = userRepository.findByLoginId(loginId)
         val datetime= LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        val qa=QADto(qaTitle = qaTitle, qaDate = datetime, qaContent = qaContent, userId = user)
+        val qa= user?.let { QADto(qaTitle = qaTitle, qaDate = datetime, qaContent = qaContent, userId = it) }
 
-        qaRepository.save(qa.asEntity())
+        if (qa != null) {
+            qaRepository.save(qa.asEntity())
+        }
     }
 
 
-    fun updateQa(userId: Long,qaId: Long,updateTitle:String,updateContent:String): Boolean
+    fun updateQa(loginId: String,qaId: Long,updateTitle:String,updateContent:String): Boolean
     {
-        val existUser = userRepository.findById(userId)
-        val user = existUser.get()
+        val user = userRepository.findByLoginId(loginId)
         val existQa = qaRepository.findById(qaId)
         val qa = existQa.get()
-        if(user.userId == qa.userId.userId)
-        {
-            qa.qaContent=updateContent
-            qa.qaTitle=updateTitle
-            qaRepository.save(qa)
-            return true
+        if (user != null) {
+            if(user.userId == qa.userId.userId)
+            {
+                qa.qaContent=updateContent
+                qa.qaTitle=updateTitle
+                qaRepository.save(qa)
+                return true
+            }
         }
         return false
     }
 
-    fun delQa(userId:Long,qaId: Long):Boolean
+    fun delQa(loginId: String,qaId: Long):Boolean
     {
-        val existUser = userRepository.findById(userId)
-        val user = existUser.get()
+        val user = userRepository.findByLoginId(loginId)
         val existQa = qaRepository.findById(qaId)
         val qa = existQa.get()
 
-        if(user.userId == qa.userId.userId || user.userId == 1L) {
-            qaRepository.delete(qa)
-            return true
+        if (user != null) {
+            if(user.userId == qa.userId.userId || user.userId == 1L) {
+                val replies = replyRepository.findByQaId(qa)
+                replies.forEach { reply ->
+                    replyRepository.delete(reply)
+                }
+                qaRepository.delete(qa)
+                return true
+            }
         }
         return false
     }
@@ -87,49 +94,51 @@ class QAService(
 
     fun getReply(qaId: Long) : List<ReplyEntity>
     {
-        val existingQa=qaRepository.findById(qaId)
-        val qa=existingQa.get()
+        val qa=getQabyId(qaId)
         val replys=replyRepository.findByQaId(qa)
         return replys
     }
 
-    fun saveReply(userId : Long, qaId: Long ,replyContent:String)
+    fun saveReply(loginId: String, qaId: Long ,replyContent:String)
     {
-        val existUser = userRepository.findById(userId)
-        val user = existUser.get()
+        val user = userRepository.findByLoginId(loginId)
         val existQa = qaRepository.findById(qaId)
         val qa = existQa.get()
         val datetime= LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        val reply=ReplyDto(replyDate = datetime,replyContent=replyContent, userId = user, qaId = qa)
+        val reply= user?.let { ReplyDto(replyDate = datetime,replyContent=replyContent, userId = it, qaId = qa) }
 
-        replyRepository.save(reply.asEntity())
+        if (reply != null) {
+            replyRepository.save(reply.asEntity())
+        }
     }
 
-    fun updateReply(userId: Long,replyId: Long,updateContent: String):Boolean
+    fun updateReply(loginId: String,replyId: Long,updateContent: String):Boolean
     {
-        val existUser = userRepository.findById(userId)
-        val user = existUser.get()
+        val user = userRepository.findByLoginId(loginId)
         val existReply = replyRepository.findById(replyId)
         val reply = existReply.get()
 
-        if(user.userId == reply.userId.userId) {
-            reply.replyContent = updateContent
-            replyRepository.save(reply)
-            return true
+        if (user != null) {
+            if(user.userId == reply.userId.userId) {
+                reply.replyContent = updateContent
+                replyRepository.save(reply)
+                return true
+            }
         }
         return false
     }
 
-    fun delReply(userId: Long,replyId :Long):Boolean
+    fun delReply(loginId: String,replyId :Long):Boolean
     {
-        val existUser = userRepository.findById(userId)
-        val user = existUser.get()
+        val user = userRepository.findByLoginId(loginId)
         val existReply = replyRepository.findById(replyId)
         val reply = existReply.get()
 
-        if(user.userId ==reply.userId.userId || user.userId == 1L) {
-            replyRepository.delete(reply)
-            return true
+        if (user != null) {
+            if(user.userId ==reply.userId.userId || user.userId == 1L) {
+                replyRepository.delete(reply)
+                return true
+            }
         }
         return false
     }
