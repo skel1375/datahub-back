@@ -4,6 +4,7 @@ import com.knusolution.datahub.domain.*
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Service
@@ -49,7 +50,7 @@ class NoticeService(
         if(user?.role != Role.ADMIN) {
             throw IllegalArgumentException("관리자만 공지사항을 작성할 수 있습니다.")
         }
-        val datetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         val notice = NoticeDto(user = user,noticeDate = datetime, noticeTitle = noticeTitle,noticeContent = noticeContent).asEntity()
         noticeRepository.save(notice)
     }
@@ -61,7 +62,7 @@ class NoticeService(
         if(user?.userId != notice.user.userId){
             throw IllegalArgumentException("작성자만 수정할 수 있습니다.")
         }
-        val datetime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         notice.noticeDate = datetime
         notice.noticeTitle = noticeTitle
         notice.noticeContent = noticeContent

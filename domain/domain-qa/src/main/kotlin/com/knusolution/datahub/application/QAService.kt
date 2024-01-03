@@ -3,6 +3,7 @@ package com.knusolution.datahub.application
 import com.knusolution.datahub.domain.*
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Service
@@ -39,7 +40,7 @@ class QAService(
     fun saveQa(loginId : String, qaTitle: String, qaContent: String)
     {
         val user = userRepository.findByLoginId(loginId)
-        val datetime= LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         val qa= user?.let { QADto(qaTitle = qaTitle, qaDate = datetime, qaContent = qaContent, userId = it) }
 
         if (qa != null) {
@@ -104,7 +105,7 @@ class QAService(
         val user = userRepository.findByLoginId(loginId)
         val existQa = qaRepository.findById(qaId)
         val qa = existQa.get()
-        val datetime= LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         val reply= user?.let { ReplyDto(replyDate = datetime,replyContent=replyContent, userId = it, qaId = qa) }
 
         if (reply != null) {
