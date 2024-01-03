@@ -155,5 +155,6 @@ project(":security")
         bootJar.enabled = false
         jar.enabled = true
 }
+
 val bootJar : BootJar by tasks
 bootJar.enabled = false
