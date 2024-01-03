@@ -3,7 +3,9 @@ package com.knusolution.datahub.application
 import com.knusolution.datahub.domain.*
 import org.springframework.stereotype.Service
 import com.knusolution.datahub.domain.UserRepository
+import com.knusolution.datahub.security.TokenProvider
 import com.knusolution.datahub.system.domain.*
+import org.springframework.security.crypto.password.PasswordEncoder
 import javax.transaction.Transactional
 
 @Service
@@ -12,14 +14,14 @@ class LoginService(
     private val systemRepository: SystemRepository,
     private val baseCategoryRepository: BaseCategoryRepository,
     private val detailCategoryRepository: DetailCategoryRepository,
+    private val encoder: PasswordEncoder,
+    private val tokenProvider: TokenProvider
 ){
-
     fun registerUser(req: JoinRequest){
         val system = systemRepository.save(req.asSystemDto().asEntity())
-        val user = req.asUserDto().asEntity(password = req.loginId)
+        val user = req.asUserDto().asEntity(password = req.loginId, encoder)
         user.systems.add(system)
         userRepository.save(user)
-
         registerCategory(system)
     }
     private fun registerCategory(system: SystemEntity)
@@ -37,19 +39,17 @@ class LoginService(
         val userEntity = userRepository.findByLoginId(req.loginId)
         val userDto = userEntity?.let { it ->
             val systemIds = it.systems.toList().map { system -> system.systemId }
-            if(req.password == it.password) it.asUserDto(systemIds = systemIds) else null
+            if(encoder.matches(req.password,it.password)) it.asUserDto(systemIds = systemIds) else null
         }
-
-
-
-        return userDto?.asLoginResponse(accessToken = "")
+        val token = tokenProvider.createToken("${userDto?.loginId}:${userDto?.role}")
+        return userDto?.asLoginResponse(token)
     }
     fun exitsUserByLoginId(loginId:String) = userRepository.existsByLoginId(loginId)
     fun updateUser(req:UpdateRequest)
     {
         val userEntity = userRepository.findByLoginId(req.loginId)
         userEntity?.let {
-            req.updateUserEntity(it)
+            req.updateUserEntity(it,encoder)
             updateDBSystem(it,req)
             userRepository.save(it)
         }

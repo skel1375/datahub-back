@@ -1,43 +1,28 @@
 package com.knusolution.datahub
 
+import io.swagger.v3.oas.models.Components
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Info
+import io.swagger.v3.oas.models.security.SecurityRequirement
+import io.swagger.v3.oas.models.security.SecurityScheme
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import springfox.documentation.builders.ApiInfoBuilder
-import springfox.documentation.builders.PathSelectors
-import springfox.documentation.builders.RequestHandlerSelectors
-import springfox.documentation.spi.DocumentationType
-import springfox.documentation.spring.web.plugins.Docket
-
+private const val SECURITY_SCHEME_NAME = "authorization"
 @Configuration
-@EnableWebMvc
-class SwaggerConfiguration {
+class SwaggerConfig {
     @Bean
-    fun swaggerApi(): Docket = Docket(DocumentationType.OAS_30)
-            .consumes(getConsumeContentTypes())
-            .produces(getProduceContentTypes())
-            .apiInfo(swaggerInfo())
-            .select()
-            .apis(RequestHandlerSelectors.any())
-            .paths(PathSelectors.any())
-            .build()
-            .useDefaultResponseMessages(false)
+    fun openAPI(): OpenAPI = OpenAPI()
+            .components(Components()
+                    .addSecuritySchemes(SECURITY_SCHEME_NAME, SecurityScheme()
+                            .name(SECURITY_SCHEME_NAME)
+                            .type(SecurityScheme.Type.HTTP)
+                            .scheme("bearer")
+                            .bearerFormat("JWT")))
+            .addSecurityItem(SecurityRequirement().addList(SECURITY_SCHEME_NAME))
+            .info(apiInfo())
 
-    private fun swaggerInfo() = ApiInfoBuilder()
-            .title("스웨거 테스트")
-            .description("스웨거로 API를 테스트")
+    private fun apiInfo() = Info()
+            .title("Springdoc 테스트")
+            .description("Springdoc을 사용한 Swagger UI 테스트")
             .version("1.0.0")
-            .build()
-
-    private fun getConsumeContentTypes(): Set<String> {
-        val consumes = HashSet<String>()
-        consumes.add("multipart/form-data")
-        return consumes
-    }
-
-    private fun getProduceContentTypes(): Set<String> {
-        val produces = HashSet<String>()
-        produces.add("application/json;charset=UTF-8")
-        return produces
-    }
 }
