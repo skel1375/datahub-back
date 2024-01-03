@@ -53,10 +53,13 @@ class QAService(
     {
         val user = userRepository.findByLoginId(loginId)
         val existQa = qaRepository.findById(qaId)
+
         val qa = existQa.get()
         if (user != null) {
             if(user.userId == qa.userId.userId)
             {
+                val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+                qa.qaDate=datetime
                 qa.qaContent=updateContent
                 qa.qaTitle=updateTitle
                 qaRepository.save(qa)
@@ -121,6 +124,8 @@ class QAService(
 
         if (user != null) {
             if(user.userId == reply.userId.userId) {
+                val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+                reply.replyDate=datetime
                 reply.replyContent = updateContent
                 replyRepository.save(reply)
                 return true

@@ -16,7 +16,7 @@ data class QAEntity(
 
     @NotNull
     @Column
-    val qaDate: String,
+    var qaDate: String,
 
     @NotNull
     @Column(columnDefinition = "TEXT")

@@ -12,7 +12,7 @@ data class ReplyEntity(
 
     @NotNull
     @Column
-    val replyDate: String,
+    var replyDate: String,
 
     @NotNull
     @Column(columnDefinition = "TEXT")
