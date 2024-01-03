@@ -133,6 +133,14 @@ project(":domain:domain-qa") {
 	jar.enabled = true
 }
 
+project(":domain:domain-notice") {
+	val jar: Jar by tasks
+	val bootJar: BootJar by tasks
+
+	bootJar.enabled = false
+	jar.enabled = true
+}
+
 project(":domain")
 {
 	val jar:Jar by tasks
