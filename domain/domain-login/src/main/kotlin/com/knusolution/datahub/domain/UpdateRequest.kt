@@ -1,6 +1,7 @@
 package com.knusolution.datahub.domain
 
 import com.knusolution.datahub.system.domain.SystemDto
+import org.springframework.security.crypto.password.PasswordEncoder
 
 data class UpdateRequest(
     val loginId:String, // 로그인 아이디
@@ -16,12 +17,12 @@ data class UpdateRequest(
     val contactNum:String,// 시스템 유지보수 업체 연락처
 )
 
-fun UpdateRequest.updateUserEntity(userEntity: UserEntity) = userEntity.also {
+fun UpdateRequest.updateUserEntity(userEntity: UserEntity,encoder: PasswordEncoder) = userEntity.also {
     val system = it.systems.firstOrNull()
     system?.systemName = this.systemName
 
     it.loginId = this.loginId
-    it.password = this.password
+    it.password = encoder.encode(this.password)
     it.departmentName = this.departmentName
     it.department = this.department
     it.contactNum = this.contactNum

@@ -2,6 +2,7 @@ package com.knusolution.datahub.controll
 
 import com.knusolution.datahub.application.NoticeService
 import com.knusolution.datahub.domain.*
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -19,16 +20,17 @@ class NoticeController(
         return noticeService.getNoticeData(noticeId)
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/notice/post")
     fun saveNotice(@RequestBody request: SaveNoticeRequest) {
         noticeService.saveNotice(request.loginId,request.noticeTitle,request.noticeContent)
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("notice/update")
     fun updateNotice(@RequestBody request:UpdateNoticeRequest) {
         noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent)
     }
-
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("notice/delete")
     fun deleteNotice(@RequestBody request: DeleteNoticeRequest) {
         noticeService.deleteNotice(request.loginId, request.noticeId)
