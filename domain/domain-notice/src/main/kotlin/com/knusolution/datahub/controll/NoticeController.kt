@@ -16,6 +16,7 @@ class NoticeController(
         val notices = noticeService.getNotice(page).map { it.asInfoDto() }
         return NoticeInfoResponse(allPage = allPage, page = page, notices = notices)
     }
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notice")
     fun getNotice(@RequestParam noticeId: Long): NoticeModalResponse? {
         return noticeService.getNoticeData(noticeId)
