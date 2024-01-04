@@ -6,7 +6,6 @@ import com.knusolution.datahub.domain.UserRepository
 import com.knusolution.datahub.security.TokenProvider
 import com.knusolution.datahub.system.domain.*
 import org.springframework.security.crypto.password.PasswordEncoder
-import javax.transaction.Transactional
 
 @Service
 class LoginService(

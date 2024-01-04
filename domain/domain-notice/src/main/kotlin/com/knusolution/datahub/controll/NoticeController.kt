@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*
 class NoticeController(
         private val noticeService: NoticeService
 ) {
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notices")
     fun getNotices(@RequestParam page: Int): NoticeInfoResponse? {
         val allPage = noticeService.getNoticePage()
@@ -20,17 +21,17 @@ class NoticeController(
         return noticeService.getNoticeData(noticeId)
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/notice/post")
     fun saveNotice(@RequestBody request: SaveNoticeRequest) {
         noticeService.saveNotice(request.loginId,request.noticeTitle,request.noticeContent)
     }
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PutMapping("notice/update")
     fun updateNotice(@RequestBody request:UpdateNoticeRequest) {
         noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent)
     }
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("notice/delete")
     fun deleteNotice(@RequestBody request: DeleteNoticeRequest) {
         noticeService.deleteNotice(request.loginId, request.noticeId)

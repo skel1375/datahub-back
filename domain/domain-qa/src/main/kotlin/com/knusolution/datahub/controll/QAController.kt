@@ -6,6 +6,7 @@ import com.knusolution.datahub.domain.ReplyResponse
 import com.knusolution.datahub.domain.asDto
 import com.knusolution.datahub.domain.asInfoDto
 import org.apache.el.parser.BooleanNode
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController
 class QAController(
     private val qaService : QAService
 ){
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/qa")
     fun getQas(
         @RequestParam page:Int
@@ -27,6 +29,7 @@ class QAController(
         return QAInfoResponse(allPage=allPage, page=page, qas=qas)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/qa/addition")
     fun saveQa(
         @RequestParam loginId:String,
@@ -37,6 +40,7 @@ class QAController(
         qaService.saveQa(loginId,qaTitle,qaContent)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PutMapping("/qa/modi")
     fun updateQa(
         @RequestParam loginId: String,
@@ -48,6 +52,7 @@ class QAController(
         return qaService.updateQa(loginId,qaId,updateTitle,updateContent)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("/qa/del")
     fun delQa(
         @RequestParam loginId: String,
@@ -57,6 +62,7 @@ class QAController(
         return qaService.delQa(loginId,qaId)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/reply")
     fun getQaContentReply(
         @RequestParam qaId: Long
@@ -69,6 +75,7 @@ class QAController(
         return ReplyResponse(qa=qa,content=content, replys = replys)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/reply/addition")
     fun saveReply(
         @RequestParam loginId: String,
@@ -79,6 +86,7 @@ class QAController(
         qaService.saveReply(loginId = loginId, qaId = qaId, replyContent = replyContent)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PutMapping("/reply/modi")
     fun updateReply(
         @RequestParam loginId: String,
@@ -89,6 +97,7 @@ class QAController(
         return qaService.updateReply(loginId = loginId,replyId = replyId, updateContent = updateContent)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("/reply/del")
     fun delReply(
         @RequestParam loginId: String,

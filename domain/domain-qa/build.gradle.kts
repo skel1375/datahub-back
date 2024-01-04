@@ -16,4 +16,5 @@ noArg {
 
 dependencies{
     implementation(project(":domain:domain-login"))
+    implementation(project(":security"))
 }
