@@ -2,6 +2,7 @@ package com.knusolution.datahub.domain
 
 import com.knusolution.datahub.system.domain.SystemEntity
 import org.jetbrains.annotations.NotNull
+import org.springframework.security.crypto.password.PasswordEncoder
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
@@ -13,7 +14,7 @@ import javax.persistence.ManyToMany
 import javax.persistence.Table
 
 @Entity
-@Table(name = "User")
+@Table(name = "user")
 data class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,10 +63,10 @@ enum class Role{
     ADMIN,USER
 }
 
-fun UserDto.asEntity(password: String) =
+fun UserDto.asEntity(password: String, encoder: PasswordEncoder) =
     UserEntity(
         loginId = this.loginId,
-        password = password,
+        password = encoder.encode(password),
         companyName = this.companyName,
         developerName = this.developerName,
         contactNum = this.contactNum,

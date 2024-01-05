@@ -1,7 +1,7 @@
 package com.knusolution.datahub.domain
 
 data class ArticleInfoDto(
-    val articleId:Long,
+    val articleId: Long,
     val uploadDate:String,
     val approval:String,
     val declineDetail:String,

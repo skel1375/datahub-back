@@ -48,6 +48,20 @@ subprojects {
 		// DB
 		runtimeOnly("mysql:mysql-connector-java:8.0.25")
 
+		//swagger
+		implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
+
+		//security
+		implementation ("org.springframework.boot:spring-boot-starter-security")
+
+		//h2
+		runtimeOnly("com.h2database:h2")
+
+		//jwt
+		implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+		runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+		runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
 		// test
 		testImplementation("org.springframework.boot:spring-boot-starter-test")
 	}
@@ -85,6 +99,7 @@ project(":datahub-app-external-api") {
 	dependencies {
 		implementation(project(":domain:domain-login"))
 		implementation(project(":domain:domain-post"))
+		implementation(project(":domain:domain-qa"))
 	}
 }
 
@@ -115,6 +130,23 @@ project(":domain:domain-system") {
 	bootJar.enabled = false
 	jar.enabled = true
 }
+
+project(":domain:domain-qa") {
+	val jar: Jar by tasks
+	val bootJar: BootJar by tasks
+
+	bootJar.enabled = false
+	jar.enabled = true
+}
+
+project(":domain:domain-notice") {
+	val jar: Jar by tasks
+	val bootJar: BootJar by tasks
+
+	bootJar.enabled = false
+	jar.enabled = true
+}
+
 project(":domain")
 {
 	val jar:Jar by tasks
@@ -129,5 +161,6 @@ project(":security")
         bootJar.enabled = false
         jar.enabled = true
 }
+
 val bootJar : BootJar by tasks
 bootJar.enabled = false

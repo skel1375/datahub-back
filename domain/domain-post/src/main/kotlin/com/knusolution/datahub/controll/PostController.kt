@@ -3,6 +3,7 @@ package com.knusolution.datahub.controll
 import com.knusolution.datahub.domain.ArticleResponse
 import com.knusolution.datahub.application.PostService
 import com.knusolution.datahub.domain.asInfoDto
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
@@ -10,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile
 class PostController(
     private val postService : PostService
 ){
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/wait-article")
     fun waitArticles(@RequestParam page:Int): ArticleResponse?
     {
@@ -17,6 +19,7 @@ class PostController(
         val articles = postService.getWaitArticles(page).map{it.asInfoDto()}
         return ArticleResponse(allPage = allpage, page = page, articles = articles)
     }
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/articles")
     fun getArticles(
         @RequestParam detailCategoryId: Long,
@@ -29,6 +32,7 @@ class PostController(
         return ArticleResponse(allPage = allpage, page = page, articles = articles)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/article-file")
     fun postArticle(
         @RequestParam detailCategoryId : Long,
@@ -36,6 +40,8 @@ class PostController(
     ){
         postService.saveArticle(detailCategoryId, file)
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/article-review")
     fun postDeclineFile(
         @RequestParam articleId : Long,
@@ -45,6 +51,5 @@ class PostController(
     ){
         postService.postDeclineFile(articleId, approval, declineDetail, file)
     }
-
 }
 
