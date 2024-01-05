@@ -13,7 +13,7 @@ data class UserEntity(
     val userId:Long = 0,
 
     @NotNull
-    @Column
+    @Column(unique = true)
     var loginId:String,
 
     @NotNull
