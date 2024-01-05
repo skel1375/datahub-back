@@ -43,7 +43,9 @@ class LoginService(
         val token = tokenProvider.createToken("${userDto?.loginId}:${userDto?.role}")
         return userDto?.asLoginResponse(token)
     }
+    fun checkLoginId(loginId: String) = !exitsUserByLoginId(loginId)
     fun exitsUserByLoginId(loginId:String) = userRepository.existsByLoginId(loginId)
+    fun checkSystemName(systemName: String) =  !systemRepository.existsBySystemName(systemName)
     fun updateUser(req:UpdateRequest)
     {
         val userEntity = userRepository.findByLoginId(req.loginId)
@@ -55,7 +57,7 @@ class LoginService(
     }
     fun updateDBSystem(userEntity: UserEntity,req:UpdateRequest)
     {
-        val system = userEntity.systems?.firstOrNull()
+        val system = userEntity.systems.firstOrNull()
         system?.let {
             it.systemName = req.systemName
             systemRepository.save(system)
