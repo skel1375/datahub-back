@@ -17,7 +17,7 @@ class LoginService(
     private val tokenProvider: TokenProvider
 ){
     fun registerUser(req: JoinRequest): Boolean {
-        if(checkLoginId(req.loginId) && checkSystemName(req.systemName)){
+        if(checkDuplicate(req.loginId,req.systemName)){
             val system = systemRepository.save(req.asSystemDto().asEntity())
             val user = req.asUserDto().asEntity(password = req.loginId, encoder)
             user.systems.add(system)
@@ -47,17 +47,21 @@ class LoginService(
         val token = tokenProvider.createToken("${userDto?.loginId}:${userDto?.role}")
         return userDto?.asLoginResponse(token)
     }
-    fun checkLoginId(loginId: String) = !exitsUserByLoginId(loginId)
-    fun exitsUserByLoginId(loginId:String) = userRepository.existsByLoginId(loginId)
+    fun checkDuplicate(loginId: String, systemName: String) = checkLoginId(loginId) && checkSystemName(systemName)
+    fun checkLoginId(loginId: String) = !userRepository.existsByLoginId(loginId)
     fun checkSystemName(systemName: String) =  !systemRepository.existsBySystemName(systemName)
-    fun updateUser(req:UpdateRequest)
+    fun updateUser(req:UpdateRequest) : Boolean
     {
-        val userEntity = userRepository.findByLoginId(req.loginId)
-        userEntity?.let {
-            req.updateUserEntity(it,encoder)
-            updateDBSystem(it,req)
-            userRepository.save(it)
+        if(checkDuplicate(req.loginId,req.systemName)){
+            val userEntity = userRepository.findByLoginId(req.loginId)
+            userEntity?.let {
+                req.updateUserEntity(it,encoder)
+                updateDBSystem(it,req)
+                userRepository.save(it)
+            }
+            return true
         }
+        return false
     }
     fun updateDBSystem(userEntity: UserEntity,req:UpdateRequest)
     {

@@ -30,5 +30,7 @@ class LoginController(
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PutMapping("/users")
-    fun updateUser(@RequestBody req:UpdateRequest) = loginService.updateUser(req)
+    fun updateUser(@RequestBody req:UpdateRequest) : ResponseEntity<Boolean> {
+        return ResponseEntity.ok(loginService.updateUser(req))
+    }
 }
