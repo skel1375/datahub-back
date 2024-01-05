@@ -148,4 +148,22 @@ class QAService(
         }
         return false
     }
+
+    fun delAllByLoginId(loginId : String)
+    {
+        val user = userRepository.findByLoginId(loginId)
+        val replys = user?.let { replyRepository.findByUserId(it) }
+        if (replys != null) {
+            replys.forEach { reply ->
+                replyRepository.delete(reply)
+            }
+        }
+        val qas = user?.let { qaRepository.findByUserId(it) }
+        if(qas != null){
+            qas.forEach{ qa->
+                delQa(loginId,qa.qaId)
+            }
+        }
+    }
+
 }

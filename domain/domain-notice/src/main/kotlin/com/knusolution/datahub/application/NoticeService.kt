@@ -78,6 +78,17 @@ class NoticeService(
         noticeRepository.deleteById(noticeId)
     }
 
+    fun delAllByLoginId(loginId: String)
+    {
+        val user = userRepository.findByLoginId(loginId)
+        val notices = user?.let { noticeRepository.findByUser(it) }
+        if(notices != null){
+            notices.forEach{notice->
+                noticeRepository.delete(notice)
+            }
+        }
+    }
+
     fun findUserByLoginId(loginId: String): UserEntity?{
         val user = userRepository.findByLoginId(loginId)
         if(user == null){

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 class LoginController(
-    private val loginService: LoginService
+    private val loginService: LoginService,
 ){
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/join/user")

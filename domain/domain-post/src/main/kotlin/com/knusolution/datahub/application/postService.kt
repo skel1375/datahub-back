@@ -3,7 +3,9 @@ package com.knusolution.datahub.application
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.knusolution.datahub.domain.*
+import com.knusolution.datahub.system.domain.BaseCategoryRepository
 import com.knusolution.datahub.system.domain.DetailCategoryRepository
+import com.knusolution.datahub.system.domain.SystemRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -16,6 +18,8 @@ import java.util.*
 class PostService(
     private val articleRepository: ArticleRepository,
     private val detailCategoryRepository: DetailCategoryRepository,
+    private val systemRepository: SystemRepository,
+    private val baseCategoryRepository: BaseCategoryRepository,
     @Value("\${cloud.aws.s3.bucket}")
     private val bucket: String,
     private val amazonS3: AmazonS3
@@ -109,6 +113,22 @@ class PostService(
 
         }
         articleRepository.save(article)
+    }
+    fun delBySystemName(systemId:Long)
+    {
+        val system = systemRepository.findBySystemId(systemId)
+            val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
+            baseCategorys.forEach{baseCategory->
+                val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
+                detailCategorys.forEach{detailCategory->
+                    val articles = articleRepository.findByDetailCategoryId(detailCategory)
+                    articles.forEach{article->
+                        articleRepository.delete(article)
+                    }
+                    detailCategoryRepository.delete(detailCategory)
+                }
+                baseCategoryRepository.delete(baseCategory)
+            }
     }
     private fun getSaveFileName(originalFilename: String?): String {
         return UUID.randomUUID().toString() + "-" + originalFilename
