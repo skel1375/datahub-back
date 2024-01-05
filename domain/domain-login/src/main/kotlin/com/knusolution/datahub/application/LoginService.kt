@@ -16,12 +16,16 @@ class LoginService(
     private val encoder: PasswordEncoder,
     private val tokenProvider: TokenProvider
 ){
-    fun registerUser(req: JoinRequest){
-        val system = systemRepository.save(req.asSystemDto().asEntity())
-        val user = req.asUserDto().asEntity(password = req.loginId, encoder)
-        user.systems.add(system)
-        userRepository.save(user)
-        registerCategory(system)
+    fun registerUser(req: JoinRequest): Boolean {
+        if(checkLoginId(req.loginId) && checkSystemName(req.systemName)){
+            val system = systemRepository.save(req.asSystemDto().asEntity())
+            val user = req.asUserDto().asEntity(password = req.loginId, encoder)
+            user.systems.add(system)
+            userRepository.save(user)
+            registerCategory(system)
+            return true
+        }
+        return false
     }
     private fun registerCategory(system: SystemEntity)
     {

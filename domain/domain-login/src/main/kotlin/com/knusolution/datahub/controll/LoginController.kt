@@ -14,27 +14,20 @@ class LoginController(
 ){
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/join/user")
-    fun registerUser(@RequestBody req: JoinRequest):Boolean
-    {
-        if(!loginService.exitsUserByLoginId(req.loginId)) {
-            loginService.registerUser(req)
-            return true
-        }
-        return false
-    }
+    fun registerUser(@RequestBody req: JoinRequest) = loginService.registerUser(req)
+    @PreAuthorize("permitAll()")
     @PostMapping("/users")
     fun loginUser(@RequestBody req: LoginRequest) = loginService.loginUser(req)
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/join/check-loginid")
     fun checkLoginId(@RequestParam loginId: String ) : ResponseEntity<Boolean> {
         return ResponseEntity.ok(loginService.checkLoginId(loginId))
     }
-    @PreAuthorize("permitAll()")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/join/check-systemname")
     fun checkSystemName(@RequestParam systemName: String ) : ResponseEntity<Boolean> {
         return ResponseEntity.ok(loginService.checkSystemName(systemName))
     }
-
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PutMapping("/users")
     fun updateUser(@RequestBody req:UpdateRequest) = loginService.updateUser(req)
