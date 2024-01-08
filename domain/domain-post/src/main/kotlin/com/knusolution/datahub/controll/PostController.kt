@@ -53,7 +53,7 @@ class PostController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PutMapping("/article/del-all")
+    @DeleteMapping("/article/del-all")
     fun delAllArticle(systemId:Long)
     {
         postService.delAllArticle(systemId)
