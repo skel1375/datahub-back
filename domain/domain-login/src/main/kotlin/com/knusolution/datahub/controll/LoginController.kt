@@ -3,6 +3,7 @@ package com.knusolution.datahub.controll
 import com.knusolution.datahub.domain.JoinRequest
 import com.knusolution.datahub.domain.LoginRequest
 import com.knusolution.datahub.application.LoginService
+import com.knusolution.datahub.domain.CheckSystemNameRequest
 import com.knusolution.datahub.domain.UpdateRequest
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -24,11 +25,15 @@ class LoginController(
     fun checkLoginId(@RequestParam loginId: String ) : ResponseEntity<Boolean> {
         return ResponseEntity.ok(loginService.checkLoginId(loginId))
     }
-
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/join/check-systemname")
     fun checkSystemName(@RequestParam systemName: String ) : ResponseEntity<Boolean> {
-        return ResponseEntity.ok(loginService.checkSystemName(systemName))
+        return ResponseEntity.ok(loginService.checkSystemNameOnJoin(systemName))
+    }
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/users/check-systemname")
+    fun checkSystemName(@RequestBody req: CheckSystemNameRequest) : ResponseEntity<Boolean> {
+        return ResponseEntity.ok(loginService.checkSystemNameOnUpdate(req.loginId,req.systemName))
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PutMapping("/users")
