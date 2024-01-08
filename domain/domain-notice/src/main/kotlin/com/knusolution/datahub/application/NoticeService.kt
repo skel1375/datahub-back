@@ -81,9 +81,7 @@ class NoticeService(
 
     fun findUserByLoginId(loginId: String): UserEntity?{
         val user = userRepository.findByLoginId(loginId)
-        if(user == null){
-            throw NoSuchElementException("Invalid loginId : $loginId 존재하지 않는 아이디입니다.")
-        }
+                ?: throw NoSuchElementException("Invalid loginId : $loginId 존재하지 않는 아이디입니다.")
         return user
     }
 

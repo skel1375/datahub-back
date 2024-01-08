@@ -11,7 +11,7 @@ data class SystemEntity(
     val systemId:Long = 0,
 
     @NotNull
-    @Column
+    @Column(unique = true)
     var systemName:String,
 )
 

@@ -1,9 +1,6 @@
 package com.knusolution.datahub.system.application
 
-import com.knusolution.datahub.system.domain.BaseCategoryRepository
-import com.knusolution.datahub.system.domain.DetailCategoryRepository
-import com.knusolution.datahub.system.domain.SystemRepository
-import com.knusolution.datahub.system.domain.detailCategories
+import com.knusolution.datahub.system.domain.*
 import org.springframework.stereotype.Service
 
 @Service
@@ -18,4 +15,8 @@ class SystemService(
 
     fun existsBaseCategory(id:Long) = baseCategoryRepository.existsById(id)
     fun getDetailCategories(id:Long) = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategoryId = id)
+
+    fun getAllSystem(): List<SystemInfo> {
+        return systemRepository.findAll().map { it.asSystemInfo() }
+    }
 }

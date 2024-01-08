@@ -3,6 +3,8 @@ package com.knusolution.datahub.system.controll
 import com.knusolution.datahub.system.application.BaseCategoryResponse
 import com.knusolution.datahub.system.application.DetailCategoryResponse
 import com.knusolution.datahub.system.application.SystemService
+import com.knusolution.datahub.system.domain.SystemEntity
+import com.knusolution.datahub.system.domain.SystemInfo
 import com.knusolution.datahub.system.domain.asDto
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -31,5 +33,10 @@ class SystemController(
         if(!systemService.existsBaseCategory(id = baseCategoryId)) return null
         val detailCategories = systemService.getDetailCategories(id = baseCategoryId).map{it.asDto()}
         return DetailCategoryResponse(detailCategories = detailCategories)
+    }
+
+    @GetMapping("/system")
+    fun getSystemList():List<SystemInfo>{
+        return systemService.getAllSystem()
     }
 }
