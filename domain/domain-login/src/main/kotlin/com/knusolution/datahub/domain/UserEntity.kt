@@ -1,6 +1,4 @@
 package com.knusolution.datahub.domain
-
-import com.knusolution.datahub.system.domain.SystemEntity
 import org.jetbrains.annotations.NotNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import javax.persistence.*

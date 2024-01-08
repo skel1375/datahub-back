@@ -17,29 +17,20 @@ class LoginService(
     private val tokenProvider: TokenProvider,
     private val userSystemRepository: UserSystemRepository
 ){
-<<<<<<< HEAD
-    fun registerUser(req: JoinRequest){
-        val system = systemRepository.save(req.asSystemDto().asEntity())
-        val user = req.asUserDto().asEntity(password = req.loginId, encoder)
-        val admin = findAdmin()
-        val adminSystem = UserSystemDto(user = admin , system = system).asEntity()
-        val userSystem = UserSystemDto(user = user, system = system).asEntity()
-        userRepository.save(user)
-        userSystemRepository.save(userSystem)
-        userSystemRepository.save(adminSystem)
-        registerCategory(system)
-=======
-    fun registerUser(req: JoinRequest): Boolean {
+    fun registerUser(req: JoinRequest):Boolean{
         if(checkDuplicate(req.loginId,req.systemName)){
             val system = systemRepository.save(req.asSystemDto().asEntity())
             val user = req.asUserDto().asEntity(password = req.loginId, encoder)
-            user.systems.add(system)
+            val admin = findAdmin()
+            val adminSystem = UserSystemDto(user = admin, system = system).asEntity()
+            val userSystem = UserSystemDto(user = user, system = system).asEntity()
             userRepository.save(user)
+            userSystemRepository.save(userSystem)
+            userSystemRepository.save(adminSystem)
             registerCategory(system)
             return true
         }
         return false
->>>>>>> origin/develop
     }
     private fun registerCategory(system: SystemEntity)
     {
@@ -67,13 +58,13 @@ class LoginService(
     fun checkDuplicate(loginId: String, systemName: String) = checkLoginId(loginId) && checkSystemName(systemName)
     fun checkLoginId(loginId: String) = !userRepository.existsByLoginId(loginId)
     fun checkSystemName(systemName: String) =  !systemRepository.existsBySystemName(systemName)
-    fun updateUser(req:UpdateRequest) : Boolean
-    {
-        if(checkDuplicate(req.loginId,req.systemName)){
+
+    fun updateUser(req:UpdateRequest):Boolean {
+        if (checkDuplicate(req.loginId, req.systemName)) {
             val userEntity = userRepository.findByLoginId(req.loginId)
             userEntity?.let {
-                req.updateUserEntity(it,encoder)
-                updateDBSystem(it,req)
+                req.updateUserEntity(it, encoder)
+                updateDBSystem(it, req)
                 userRepository.save(it)
             }
             return true
@@ -82,7 +73,6 @@ class LoginService(
     }
     fun updateDBSystem(userEntity: UserEntity,req:UpdateRequest)
     {
-<<<<<<< HEAD
         val userSystems = userSystemRepository.findByUser(userEntity)
         val system= userSystems[0].system
         system.systemName = req.systemName
@@ -110,12 +100,6 @@ class LoginService(
         if (user != null) {
             userRepository.delete(user)
             systemRepository.delete(system)
-=======
-        val system = userEntity.systems.firstOrNull()
-        system?.let {
-            it.systemName = req.systemName
-            systemRepository.save(system)
->>>>>>> origin/develop
         }
     }
 }
