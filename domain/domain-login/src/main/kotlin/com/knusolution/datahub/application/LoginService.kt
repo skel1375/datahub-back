@@ -55,12 +55,19 @@ class LoginService(
         val token = tokenProvider.createToken("${userDto?.loginId}:${userDto?.role}")
         return userDto?.asLoginResponse(token)
     }
-    fun checkDuplicate(loginId: String, systemName: String) = checkLoginId(loginId) && checkSystemName(systemName)
+    fun checkDuplicate(loginId: String, systemName: String)
+    = checkLoginId(loginId) && checkSystemNameOnJoin(systemName)
     fun checkLoginId(loginId: String) = !userRepository.existsByLoginId(loginId)
-    fun checkSystemName(systemName: String) =  !systemRepository.existsBySystemName(systemName)
+    fun checkSystemNameOnJoin(systemName: String) = !systemRepository.existsBySystemName(systemName)
+    //회원정보 수정 시 현재 정보와 같아도 중복 허용
+    fun checkSystemNameOnUpdate(loginId: String, systemName: String) :Boolean {
+        val user = userRepository.findByLoginId(loginId) ?: throw NoSuchElementException("유저를 찾을 수 없습니다.")
+        val curSystemName = userSystemRepository.findByUser(user).first().system.systemName
+        return !systemRepository.existsBySystemName(systemName) || curSystemName == systemName
+    }
 
     fun updateUser(req:UpdateRequest):Boolean {
-        if (checkDuplicate(req.loginId, req.systemName)) {
+        if (checkSystemNameOnUpdate(req.loginId,req.systemName)) {
             val userEntity = userRepository.findByLoginId(req.loginId)
             userEntity?.let {
                 req.updateUserEntity(it, encoder)
