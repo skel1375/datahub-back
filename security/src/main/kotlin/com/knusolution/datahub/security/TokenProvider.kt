@@ -1,5 +1,7 @@
 package com.knusolution.datahub.security
 
+import io.jsonwebtoken.Claims
+import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.beans.factory.annotation.Value
@@ -27,11 +29,28 @@ class TokenProvider (
             .setIssuedAt(Timestamp.valueOf(LocalDateTime.now()))    // JWT 토큰 발급 시간
             .setExpiration(Date.from(Instant.now().plus(expirationHours, ChronoUnit.HOURS)))    // JWT 토큰의 만료시간 설정
             .compact()!!    // JWT 토큰 생성
-
-    fun validateTokenAndGetSubject(token: String): String? = Jwts.parserBuilder()
-            .setSigningKey(secretKey.toByteArray())
-            .build()
-            .parseClaimsJws(token)
-            .body
-            .subject
+    fun validateToken(token: String) : Boolean {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(secretKey.toByteArray())
+            return true
+        } catch (e: JwtException){
+            throw JwtException("TOKEN_INVALID")
+        }
+    }
+    fun getSubject(token: String): String? {
+        return getClaims(token).subject
+    }
+    fun getClaims(token: String): Claims {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(secretKey.toByteArray())
+                    .build().parseClaimsJws(token)
+                    .body
+        } catch (e: JwtException){
+            throw JwtException("TOKEN_INVALID")
+        }
+    }
+    fun getExpireDate(token: String) = getClaims(token).expiration
 }
+
