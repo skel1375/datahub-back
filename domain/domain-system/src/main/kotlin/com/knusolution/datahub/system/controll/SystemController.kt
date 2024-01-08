@@ -4,6 +4,7 @@ import com.knusolution.datahub.system.application.BaseCategoryResponse
 import com.knusolution.datahub.system.application.DetailCategoryResponse
 import com.knusolution.datahub.system.application.SystemService
 import com.knusolution.datahub.system.domain.asDto
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 class SystemController(
     private val systemService: SystemService,
 ) {
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/base-category")
     fun getBaseCategory(@RequestParam systemId:Long):BaseCategoryResponse?
     {
@@ -22,6 +24,7 @@ class SystemController(
         return BaseCategoryResponse(systemName = system.systemName, baseCategories = baseCategories)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/detail-category")
     fun getDetailCategory(@RequestParam baseCategoryId:Long):DetailCategoryResponse?
     {

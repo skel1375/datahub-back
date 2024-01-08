@@ -11,5 +11,5 @@ fun ReplyEntity.asInfoDto() = ReplyInfoDto(
     replyId=this.replyId,
     replyDate=this.replyDate,
     replyContent=this.replyContent,
-    username = this.userId.loginId
+    username = this.user.loginId
 )

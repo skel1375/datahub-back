@@ -10,7 +10,7 @@ data class NoticeEntity(
         val noticeId: Long = 0,
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "user_id")
+        @JoinColumn(name = "userId")
         val user: UserEntity,
 
         @NotNull

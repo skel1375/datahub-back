@@ -20,16 +20,16 @@ data class ReplyEntity(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
-    val userId: UserEntity,
+    val user: UserEntity,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "qaId")
-    val qaId: QAEntity
+    val qa: QAEntity
 )
 
 fun ReplyDto.asEntity()=ReplyEntity(
     replyDate=this.replyDate,
     replyContent=this.replyContent,
-    userId = this.userId,
-    qaId = this.qaId
+    user = this.user,
+    qa = this.qa
 )

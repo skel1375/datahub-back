@@ -106,4 +106,11 @@ class QAController(
     {
         return qaService.delReply(loginId = loginId ,replyId = replyId)
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @DeleteMapping("/qa-reply/del-all")
+    fun delAllQaReply(@RequestParam systemId:Long)
+    {
+        qaService.delAllQaReply(systemId)
+    }
 }

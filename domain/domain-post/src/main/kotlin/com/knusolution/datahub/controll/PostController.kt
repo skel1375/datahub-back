@@ -51,5 +51,12 @@ class PostController(
     ){
         postService.postDeclineFile(articleId, approval, declineDetail, file)
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PutMapping("/article/del-all")
+    fun delAllArticle(systemId:Long)
+    {
+        postService.delAllArticle(systemId)
+    }
 }
 

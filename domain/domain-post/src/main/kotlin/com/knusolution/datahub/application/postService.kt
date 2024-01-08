@@ -55,7 +55,7 @@ class PostService(
     fun getArticles(detailCategoryId: Long,page: Int): List<ArticleEntity>{
         val existingDetailCategory = detailCategoryRepository.findById(detailCategoryId)
         val detailCategory = existingDetailCategory.get()
-        val articles=articleRepository.findByDetailCategoryId(detailCategory).reversed()
+        val articles=articleRepository.findByDetailCategory(detailCategory).reversed()
         val startIndex=(page-1)*pageSize
         if (startIndex >= articles.size) {
             return emptyList()
@@ -67,7 +67,7 @@ class PostService(
     {
         val existingDetailCategory = detailCategoryRepository.findById(detailCategoryId)
         val detailCategory = existingDetailCategory.get()
-        val articles=articleRepository.findByDetailCategoryId(detailCategory)
+        val articles=articleRepository.findByDetailCategory(detailCategory)
         val allpage = if (articles.size % pageSize == 0) {
             articles.size / pageSize
         } else {
@@ -114,14 +114,14 @@ class PostService(
         }
         articleRepository.save(article)
     }
-    fun delBySystemName(systemId:Long)
+    fun delAllArticle(systemId:Long)
     {
         val system = systemRepository.findBySystemId(systemId)
             val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
             baseCategorys.forEach{baseCategory->
                 val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
                 detailCategorys.forEach{detailCategory->
-                    val articles = articleRepository.findByDetailCategoryId(detailCategory)
+                    val articles = articleRepository.findByDetailCategory(detailCategory)
                     articles.forEach{article->
                         articleRepository.delete(article)
                     }

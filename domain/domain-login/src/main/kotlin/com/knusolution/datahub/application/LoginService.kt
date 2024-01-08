@@ -14,13 +14,18 @@ class LoginService(
     private val baseCategoryRepository: BaseCategoryRepository,
     private val detailCategoryRepository: DetailCategoryRepository,
     private val encoder: PasswordEncoder,
-    private val tokenProvider: TokenProvider
+    private val tokenProvider: TokenProvider,
+    private val userSystemRepository: UserSystemRepository
 ){
     fun registerUser(req: JoinRequest){
         val system = systemRepository.save(req.asSystemDto().asEntity())
         val user = req.asUserDto().asEntity(password = req.loginId, encoder)
-        user.systems.add(system)
+        val admin = findAdmin()
+        val adminSystem = UserSystemDto(user = admin , system = system).asEntity()
+        val userSystem = UserSystemDto(user = user, system = system).asEntity()
         userRepository.save(user)
+        userSystemRepository.save(userSystem)
+        userSystemRepository.save(adminSystem)
         registerCategory(system)
     }
     private fun registerCategory(system: SystemEntity)
@@ -37,7 +42,10 @@ class LoginService(
     {
         val userEntity = userRepository.findByLoginId(req.loginId)
         val userDto = userEntity?.let { it ->
-            val systemIds = it.systems.toList().map { system -> system.systemId }
+            val userSystems=userSystemRepository.findByUser(it)
+            val systemIds = userSystems.map { userSystem ->
+                userSystem.system.systemId
+            }
             if(encoder.matches(req.password,it.password)) it.asUserDto(systemIds = systemIds) else null
         }
         val token = tokenProvider.createToken("${userDto?.loginId}:${userDto?.role}")
@@ -55,11 +63,33 @@ class LoginService(
     }
     fun updateDBSystem(userEntity: UserEntity,req:UpdateRequest)
     {
-        val system = userEntity.systems?.firstOrNull()
-        system?.let {
-            it.systemName = req.systemName
-            systemRepository.save(system)
-        }
+        val userSystems = userSystemRepository.findByUser(userEntity)
+        val system= userSystems[0].system
+        system.systemName = req.systemName
+        systemRepository.save(system)
     }
 
+    fun findAdmin():UserEntity {
+        val admin = userRepository.findByUserId(1L)
+        return admin
+    }
+
+    fun delUserSystem(systemId:Long)
+    {
+        val system =systemRepository.findBySystemId(systemId)
+        val admin=findAdmin()
+        val userSystems= userSystemRepository.findBySystem(system)
+        val user = userSystems.firstOrNull { it.user.userId != 1L }?.user
+        val userSystem= user?.let { userSystemRepository.findByUserAndSystem(it,system) }
+        val adminSystem=userSystemRepository.findByUserAndSystem(admin,system)
+
+        if (userSystem != null) {
+            userSystemRepository.delete(userSystem)
+            userSystemRepository.delete(adminSystem)
+        }
+        if (user != null) {
+            userRepository.delete(user)
+            systemRepository.delete(system)
+        }
+    }
 }

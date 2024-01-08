@@ -9,8 +9,9 @@ import java.time.format.DateTimeFormatter
 
 @Service
 class NoticeService(
-        private val noticeRepository: NoticeRepository,
-        private val userRepository: UserRepository
+    private val noticeRepository: NoticeRepository,
+    private val userRepository: UserRepository,
+    private val userSystemRepository: UserSystemRepository
 ) {
     val pageSize = 10
     fun getNoticePage():Int
@@ -76,17 +77,6 @@ class NoticeService(
             throw IllegalArgumentException("작성자만 삭제할 수 있습니다.")
         }
         noticeRepository.deleteById(noticeId)
-    }
-
-    fun delAllByLoginId(loginId: String)
-    {
-        val user = userRepository.findByLoginId(loginId)
-        val notices = user?.let { noticeRepository.findByUser(it) }
-        if(notices != null){
-            notices.forEach{notice->
-                noticeRepository.delete(notice)
-            }
-        }
     }
 
     fun findUserByLoginId(loginId: String): UserEntity?{

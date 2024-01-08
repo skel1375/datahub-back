@@ -14,5 +14,5 @@ fun QAEntity.asInfoDto() = QAInfoDto(
     qaId = this.qaId,
     qaTitle=this.qaTitle,
     qaDate=this.qaDate,
-    username = this.userId.loginId
+    username = this.user.loginId
 )

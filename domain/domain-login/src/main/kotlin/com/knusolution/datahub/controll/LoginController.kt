@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 class LoginController(
-    private val loginService: LoginService,
+    private val loginService: LoginService
 ){
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/join/user")
@@ -27,4 +27,11 @@ class LoginController(
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PutMapping("/users")
     fun updateUser(@RequestBody req:UpdateRequest) = loginService.updateUser(req)
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @DeleteMapping("/user/del")
+    fun delUserSystem(@RequestParam systemId:Long)
+    {
+        loginService.delUserSystem(systemId)
+    }
 }

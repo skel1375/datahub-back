@@ -28,13 +28,14 @@ class NoticeController(
         noticeService.saveNotice(request.loginId,request.noticeTitle,request.noticeContent)
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PutMapping("notice/update")
+    @PutMapping("/notice/update")
     fun updateNotice(@RequestBody request:UpdateNoticeRequest) {
         noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent)
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @DeleteMapping("notice/delete")
+    @DeleteMapping("/notice/delete")
     fun deleteNotice(@RequestBody request: DeleteNoticeRequest) {
         noticeService.deleteNotice(request.loginId, request.noticeId)
     }
+
 }

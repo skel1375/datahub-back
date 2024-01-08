@@ -51,13 +51,6 @@ data class UserEntity(
     @NotNull
     @Column
     val role: Role,
-
-    @ManyToMany
-    @JoinTable(name = "user_system",
-        joinColumns = [JoinColumn(name = "userId")],
-        inverseJoinColumns = [JoinColumn(name = "systemId")]
-    )
-    var systems: MutableSet<SystemEntity> = HashSet()
 )
 enum class Role{
     ADMIN,USER
