@@ -1,5 +1,6 @@
 package com.knusolution.datahub.security
 
+import io.jsonwebtoken.JwtException
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -15,14 +16,19 @@ import javax.servlet.http.HttpServletResponse
 
 @Order(1)
 @Component
-class JwtAuthenticationFilter(private val tokenProvider: TokenProvider) : OncePerRequestFilter() {
+class JwtAuthenticationFilter(
+        private val tokenProvider: TokenProvider,
+        private val blackListRepository: BlackListRepository)
+    : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         val token = parseBearerToken(request)
-        val user = parseUserSpecification(token)
-        UsernamePasswordAuthenticationToken.authenticated(user, token, user.authorities)
-                .apply { details = WebAuthenticationDetails(request) }
-                .also { SecurityContextHolder.getContext().authentication = it }
-
+        if(token != null && tokenProvider.validateToken(token)){
+            if(blackListRepository.existsByToken(token)) throw JwtException("Token-Invalid, 로그아웃으로 만료된 토큰입니다.")
+            val user = parseUserSpecification(token)
+            UsernamePasswordAuthenticationToken.authenticated(user, token, user.authorities)
+                    .apply { details = WebAuthenticationDetails(request) }
+                    .also { SecurityContextHolder.getContext().authentication = it }
+        }
         filterChain.doFilter(request, response)
     }
 
@@ -31,7 +37,7 @@ class JwtAuthenticationFilter(private val tokenProvider: TokenProvider) : OncePe
 
     private fun parseUserSpecification(token: String?) = (
             token?.takeIf { it.length >= 10 }
-                    ?.let { tokenProvider.validateTokenAndGetSubject(it) }
+                    ?.let { tokenProvider.getSubject(it) }
                     ?: "anonymous:anonymous"
             ).split(":")
             .let { User(it[0], "", listOf(SimpleGrantedAuthority(it[1]))) }

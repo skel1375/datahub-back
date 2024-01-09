@@ -3,14 +3,18 @@ package com.knusolution.datahub.application
 import com.knusolution.datahub.domain.*
 import org.springframework.stereotype.Service
 import com.knusolution.datahub.domain.UserRepository
+import com.knusolution.datahub.security.BlackListEntity
+import com.knusolution.datahub.security.BlackListRepository
 import com.knusolution.datahub.security.TokenProvider
 import com.knusolution.datahub.system.domain.*
 import org.springframework.security.crypto.password.PasswordEncoder
+import java.time.Instant
 
 @Service
 class LoginService(
     private val userRepository: UserRepository,
     private val systemRepository: SystemRepository,
+    private val blackListRepository: BlackListRepository,
     private val baseCategoryRepository: BaseCategoryRepository,
     private val detailCategoryRepository: DetailCategoryRepository,
     private val encoder: PasswordEncoder,
@@ -70,5 +74,10 @@ class LoginService(
             it.systemName = req.systemName
             systemRepository.save(system)
         }
+    }
+    fun addToBlackList(token: String){
+        val expireDate = tokenProvider.getExpireDate(token)
+        blackListRepository.save(BlackListEntity(token,expireDate))
+        blackListRepository.deleteAllByExpireDateBefore(Instant.now())
     }
 }

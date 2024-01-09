@@ -7,6 +7,7 @@ import com.knusolution.datahub.domain.UpdateRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import javax.servlet.http.HttpServletRequest
 
 @RestController
 class LoginController(
@@ -32,5 +33,12 @@ class LoginController(
     @PutMapping("/users")
     fun updateUser(@RequestBody req:UpdateRequest) : ResponseEntity<Boolean> {
         return ResponseEntity.ok(loginService.updateUser(req))
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PostMapping("/logout/user")
+    fun logoutUser(request: HttpServletRequest){
+        val authorizationHeader = request.getHeader("Authorization") ?: throw RuntimeException("No Authorization header")
+        val token = authorizationHeader.removePrefix("Bearer ").trim()
+        return loginService.addToBlackList(token)
     }
 }
