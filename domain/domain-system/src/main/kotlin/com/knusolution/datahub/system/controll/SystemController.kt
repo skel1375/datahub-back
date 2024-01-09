@@ -1,10 +1,7 @@
 package com.knusolution.datahub.system.controll
 
-import com.knusolution.datahub.system.domain.BaseCategoryResponse
-import com.knusolution.datahub.system.domain.DetailCategoryResponse
 import com.knusolution.datahub.system.application.SystemService
-import com.knusolution.datahub.system.domain.SystemInfo
-import com.knusolution.datahub.system.domain.asDto
+import com.knusolution.datahub.system.domain.*
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -34,7 +31,8 @@ class SystemController(
     }
 
     @GetMapping("/system")
-    fun getSystemList():List<SystemInfo>{
-        return systemService.getAllSystem()
+    fun getSystemList():SystemResponse{
+        val systems = systemService.getAllSystem().map { it.asSystemInfo() }
+        return SystemResponse(systems = systems)
     }
 }
