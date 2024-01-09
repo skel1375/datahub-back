@@ -31,7 +31,7 @@ class LoginController(
         return ResponseEntity.ok(loginService.checkSystemNameOnJoin(systemName))
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/users/check-systemname")
+    @PostMapping("/users/check-systemname")
     fun checkSystemName(@RequestBody req: CheckSystemNameRequest) : ResponseEntity<Boolean> {
         return ResponseEntity.ok(loginService.checkSystemNameOnUpdate(req.loginId,req.systemName))
     }
