@@ -1,5 +1,6 @@
 package com.knusolution.datahub.security
 
+import com.knusolution.datahub.security.domain.BlackListRepository
 import io.jsonwebtoken.JwtException
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
@@ -21,14 +22,20 @@ class JwtAuthenticationFilter(
         private val blackListRepository: BlackListRepository)
     : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        val token = parseBearerToken(request)
-        if(token != null && tokenProvider.validateToken(token)){
+        try{
+            val token = parseBearerToken(request)
+            tokenProvider.validateToken(token!!)
+
             if(blackListRepository.existsByToken(token)) throw JwtException("Token-Invalid, 로그아웃으로 만료된 토큰입니다.")
+
             val user = parseUserSpecification(token)
             UsernamePasswordAuthenticationToken.authenticated(user, token, user.authorities)
                     .apply { details = WebAuthenticationDetails(request) }
                     .also { SecurityContextHolder.getContext().authentication = it }
+        } catch (e: Exception) {
+            request.setAttribute("exception",e)
         }
+
         filterChain.doFilter(request, response)
     }
 

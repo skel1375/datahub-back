@@ -1,4 +1,4 @@
-package com.knusolution.datahub.security
+package com.knusolution.datahub.security.domain
 
 import org.jetbrains.annotations.NotNull
 import java.util.*

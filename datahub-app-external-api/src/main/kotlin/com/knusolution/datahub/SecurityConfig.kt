@@ -1,5 +1,6 @@
 package com.knusolution.datahub
 
+import com.knusolution.datahub.security.JwtAuthenticationEntryPoint
 import com.knusolution.datahub.security.JwtAuthenticationFilter
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest
 import org.springframework.context.annotation.Bean
@@ -13,7 +14,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 
 @EnableMethodSecurity
 @Configuration
-class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilter) {
+class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+        private val entryPoint: JwtAuthenticationEntryPoint) {
     @Bean
     fun filterChain(http: HttpSecurity) = http
             .csrf().disable()
@@ -30,6 +32,7 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }	// 세션을 사용하지 않으므로 STATELESS 설정
             .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter::class.java)
+            .exceptionHandling { it.authenticationEntryPoint(entryPoint) }
             .build()!!
     @Bean
     fun passwordEncoder() = BCryptPasswordEncoder()
