@@ -32,7 +32,7 @@ class TokenProvider (
         .setSubject(userSpecification)   // JWT 토큰 제목
         .setIssuer(issuer)    // JWT 토큰 발급자
         .setIssuedAt(Timestamp.valueOf(LocalDateTime.now()))    // JWT 토큰 발급 시간
-        .setExpiration(Date.from(Instant.now().plus(accessExpirationMinutes, ChronoUnit.SECONDS)))    // JWT 토큰의 만료시간 설정
+        .setExpiration(Date.from(Instant.now().plus(accessExpirationMinutes, ChronoUnit.MINUTES)))    // JWT 토큰의 만료시간 설정
         .compact()!!    // JWT 토큰 생성
     fun createRefreshToken() = Jwts.builder()
         .signWith(SecretKeySpec(secretKey.toByteArray(),SignatureAlgorithm.HS512.jcaName))
@@ -50,7 +50,6 @@ class TokenProvider (
     }
     @Transactional(readOnly = true)
     fun validateRefreshToken(refreshToken: String, oldAccessToken: String) {
-        println("check2 $refreshToken")
         validateToken(refreshToken)
         val userID = decodeJwtPayloadSubject(oldAccessToken).split(':')[0].toLong()
         userRefreshTokenRepository.findByUserIdAndReissueCountLessThan(userID,reissueLimit)
