@@ -18,8 +18,7 @@ data class UpdateRequest(
 )
 
 fun UpdateRequest.updateUserEntity(userEntity: UserEntity,encoder: PasswordEncoder) = userEntity.also {
-    val system = it.systems.firstOrNull()
-    system?.systemName = this.systemName
+
 
     it.loginId = this.loginId
     it.password = encoder.encode(this.password)

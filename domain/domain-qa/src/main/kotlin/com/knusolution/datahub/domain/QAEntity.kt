@@ -24,12 +24,12 @@ data class QAEntity(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
-    val userId: UserEntity
+    val user: UserEntity
 )
 
 fun QADto.asEntity() = QAEntity(
     qaTitle = this.qaTitle,
     qaDate =  this.qaDate,
     qaContent = this.qaContent,
-    userId = this.userId
+    user = this.user
 )

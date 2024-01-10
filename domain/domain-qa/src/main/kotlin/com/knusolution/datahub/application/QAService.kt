@@ -10,7 +10,8 @@ import java.time.format.DateTimeFormatter
 class QAService(
     private val qaRepository: QARepository,
     private val replyRepository: ReplyRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val userSystemRepository: UserSystemRepository,
 ){
     val pageSize = 10
 
@@ -41,7 +42,7 @@ class QAService(
     {
         val user = userRepository.findByLoginId(loginId)
         val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        val qa= user?.let { QADto(qaTitle = qaTitle, qaDate = datetime, qaContent = qaContent, userId = it) }
+        val qa= user?.let { QADto(qaTitle = qaTitle, qaDate = datetime, qaContent = qaContent, user = it) }
 
         if (qa != null) {
             qaRepository.save(qa.asEntity())
@@ -56,7 +57,7 @@ class QAService(
 
         val qa = existQa.get()
         if (user != null) {
-            if(user.userId == qa.userId.userId)
+            if(user.userId == qa.user.userId)
             {
                 val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
                 qa.qaDate=datetime
@@ -76,8 +77,8 @@ class QAService(
         val qa = existQa.get()
 
         if (user != null) {
-            if(user.userId == qa.userId.userId || user.userId == 1L) {
-                val replies = replyRepository.findByQaId(qa)
+            if(user.userId == qa.user.userId || user.userId == 1L) {
+                val replies = replyRepository.findByQa(qa)
                 replies.forEach { reply ->
                     replyRepository.delete(reply)
                 }
@@ -99,7 +100,7 @@ class QAService(
     fun getReply(qaId: Long) : List<ReplyEntity>
     {
         val qa=getQabyId(qaId)
-        val replys=replyRepository.findByQaId(qa)
+        val replys=replyRepository.findByQa(qa)
         return replys
     }
 
@@ -109,7 +110,7 @@ class QAService(
         val existQa = qaRepository.findById(qaId)
         val qa = existQa.get()
         val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        val reply= user?.let { ReplyDto(replyDate = datetime,replyContent=replyContent, userId = it, qaId = qa) }
+        val reply= user?.let { ReplyDto(replyDate = datetime,replyContent=replyContent, user = it, qa = qa) }
 
         if (reply != null) {
             replyRepository.save(reply.asEntity())
@@ -123,7 +124,7 @@ class QAService(
         val reply = existReply.get()
 
         if (user != null) {
-            if(user.userId == reply.userId.userId) {
+            if(user.userId == reply.user.userId) {
                 val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
                 reply.replyDate=datetime
                 reply.replyContent = updateContent
@@ -141,11 +142,28 @@ class QAService(
         val reply = existReply.get()
 
         if (user != null) {
-            if(user.userId ==reply.userId.userId || user.userId == 1L) {
+            if(user.userId ==reply.user.userId || user.userId == 1L) {
                 replyRepository.delete(reply)
                 return true
             }
         }
         return false
     }
+
+    fun delAllQaReply(systemId: Long)
+    {
+        val userSystems= userSystemRepository.findBySystemSystemId(systemId)
+        val user = userSystems.firstOrNull { it.user.userId != 1L }?.user
+        val replys = user?.let { replyRepository.findByUser(it) }
+        replys?.forEach { reply ->
+            replyRepository.delete(reply)
+        }
+        val qas = user?.let { qaRepository.findByUser(it) }
+        if(qas != null){
+            qas.forEach{ qa->
+                delQa(user.loginId,qa.qaId)
+            }
+        }
+    }
+
 }

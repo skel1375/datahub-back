@@ -1,6 +1,4 @@
 package com.knusolution.datahub.domain
-
-import com.knusolution.datahub.system.domain.SystemEntity
 import org.jetbrains.annotations.NotNull
 import org.springframework.security.crypto.password.PasswordEncoder
 import javax.persistence.*
@@ -43,13 +41,6 @@ data class UserEntity(
     @NotNull
     @Column
     val role: Role,
-
-    @ManyToMany
-    @JoinTable(name = "user_system",
-        joinColumns = [JoinColumn(name = "userId")],
-        inverseJoinColumns = [JoinColumn(name = "systemId")]
-    )
-    var systems: MutableSet<SystemEntity> = HashSet()
 )
 enum class Role{
     ADMIN,USER

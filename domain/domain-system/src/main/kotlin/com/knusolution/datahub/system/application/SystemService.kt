@@ -16,7 +16,5 @@ class SystemService(
     fun existsBaseCategory(id:Long) = baseCategoryRepository.existsById(id)
     fun getDetailCategories(id:Long) = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategoryId = id)
 
-    fun getAllSystem(): List<SystemInfo> {
-        return systemRepository.findAll().map { it.asSystemInfo() }
-    }
+    fun getAllSystem() = systemRepository.findAll()
 }

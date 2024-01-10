@@ -31,14 +31,15 @@ class NoticeController(
     }
     //게시물 수정
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PutMapping("notice/update")
+    @PutMapping("/notice/update")
     fun updateNotice(@RequestBody request:UpdateNoticeRequest) {
         noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent)
     }
     //게시물 삭제
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @DeleteMapping("notice/delete")
+    @DeleteMapping("/notice/delete")
     fun deleteNotice(@RequestBody request: DeleteNoticeRequest) {
         noticeService.deleteNotice(request.loginId, request.noticeId)
     }
+
 }
