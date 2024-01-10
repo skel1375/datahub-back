@@ -29,11 +29,11 @@ class SwaggerConfig {
             .info(apiInfo())
 
     @Bean
-    fun globalHeader() = OperationCustomizer{ operation: Operation, _: HandlerMethod? ->
+    fun globalHeader() = OperationCustomizer{ operation: Operation, _: HandlerMethod ->
         operation.addParametersItem(Parameter()
                 .`in`(ParameterIn.HEADER.toString())
                 .schema(StringSchema().name("Refresh-Token"))
-                .name("Refresh.Token"))
+                .name("Refresh-Token"))
         operation
     }
 
