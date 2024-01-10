@@ -1,4 +1,4 @@
-package com.knusolution.datahub.security
+package com.knusolution.datahub.security.domain
 
 import org.springframework.data.jpa.repository.JpaRepository
 import java.time.Instant
