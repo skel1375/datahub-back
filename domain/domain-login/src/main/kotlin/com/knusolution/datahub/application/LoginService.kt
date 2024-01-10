@@ -22,7 +22,7 @@ class LoginService(
     private val detailCategoryRepository: DetailCategoryRepository,
     private val encoder: PasswordEncoder,
     private val tokenProvider: TokenProvider,
-    private val userSystemRepository: UserSystemRepository
+    private val userSystemRepository: UserSystemRepository,
     private val userRefreshTokenRepository: UserRefreshTokenRepository
 ){
     fun registerUser(req: JoinRequest):Boolean{
@@ -54,7 +54,10 @@ class LoginService(
     {
         val userEntity = userRepository.findByLoginId(req.loginId) ?: throw(IllegalArgumentException("존재하지 않는 ID입니다."))
         val userDto = userEntity.let { it ->
-            val systemIds = it.systems.toList().map { system -> system.systemId }
+            val userSystems=userSystemRepository.findByUser(it)
+            val systemIds = userSystems.map { userSystem ->
+                userSystem.system.systemId
+            }
             if(encoder.matches(req.password,it.password)) it.asUserDto(systemIds = systemIds)
             else throw(IllegalArgumentException("비밀번호가 일치하지 않습니다."))
         }
@@ -66,7 +69,7 @@ class LoginService(
     }
 
     //아이디 중복, 시스템 이름 중복 검사
-    fun checkDuplicate(loginId: String, systemName: String) = checkLoginId(loginId) && checkSystemName(systemName)
+    fun checkDuplicate(loginId: String, systemName: String) = checkLoginId(loginId) && checkSystemNameOnJoin(systemName)
     fun checkLoginId(loginId: String) = !userRepository.existsByLoginId(loginId)
     fun checkSystemNameOnJoin(systemName: String) = !systemRepository.existsBySystemName(systemName)
     //회원정보 수정 시 현재 정보와 같아도 중복 허용
