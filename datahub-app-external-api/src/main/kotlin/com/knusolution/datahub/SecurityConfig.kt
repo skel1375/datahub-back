@@ -15,7 +15,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 @EnableMethodSecurity
 @Configuration
 class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-        private val entryPoint: JwtAuthenticationEntryPoint) {
+                     private val entryPoint: JwtAuthenticationEntryPoint
+) {
     @Bean
     fun filterChain(http: HttpSecurity) = http
             .csrf().disable()

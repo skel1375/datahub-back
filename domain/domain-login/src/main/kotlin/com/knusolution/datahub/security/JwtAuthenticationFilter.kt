@@ -18,8 +18,8 @@ import javax.servlet.http.HttpServletResponse
 @Order(1)
 @Component
 class JwtAuthenticationFilter(
-        private val tokenProvider: TokenProvider,
-        private val blackListRepository: BlackListRepository)
+    private val tokenProvider: TokenProvider,
+    private val blackListRepository: BlackListRepository)
     : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         try{

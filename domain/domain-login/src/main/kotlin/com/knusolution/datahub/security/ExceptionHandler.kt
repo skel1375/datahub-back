@@ -2,7 +2,6 @@ package com.knusolution.datahub.security
 
 import com.knusolution.datahub.security.domain.ApiResponse
 import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.security.SignatureException
 import org.springframework.http.HttpStatus

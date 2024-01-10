@@ -6,6 +6,7 @@ import com.knusolution.datahub.domain.UserRepository
 import com.knusolution.datahub.security.domain.BlackListEntity
 import com.knusolution.datahub.security.domain.BlackListRepository
 import com.knusolution.datahub.security.TokenProvider
+import com.knusolution.datahub.security.domain.UserRefreshTokenEntity
 import com.knusolution.datahub.security.domain.UserRefreshTokenRepository
 import com.knusolution.datahub.system.domain.*
 import org.springframework.data.repository.findByIdOrNull
@@ -53,7 +54,8 @@ class LoginService(
         }
         val token = tokenProvider.createToken("${userDto?.loginId}:${userDto?.role}")
         val refreshToken = tokenProvider.createRefreshToken()
-        userRefreshTokenRepository.findByIdOrNull(userEntity!!.userId)
+        userRefreshTokenRepository.findByIdOrNull(userEntity!!.userId)?.updateRefeshToken(refreshToken)
+            ?: userRefreshTokenRepository.save(UserRefreshTokenEntity(userEntity,refreshToken))
         return userDto?.asLoginResponse(token,refreshToken)
     }
     fun checkDuplicate(loginId: String, systemName: String) = checkLoginId(loginId) && checkSystemName(systemName)
