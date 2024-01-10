@@ -47,17 +47,20 @@ class LoginService(
     }
     fun loginUser(req: LoginRequest): LoginResponse?
     {
-        val userEntity = userRepository.findByLoginId(req.loginId)
-        val userDto = userEntity?.let { it ->
+        val userEntity = userRepository.findByLoginId(req.loginId) ?: throw(IllegalArgumentException("존재하지 않는 ID입니다."))
+        val userDto = userEntity.let { it ->
             val systemIds = it.systems.toList().map { system -> system.systemId }
-            if(encoder.matches(req.password,it.password)) it.asUserDto(systemIds = systemIds) else null
+            if(encoder.matches(req.password,it.password)) it.asUserDto(systemIds = systemIds)
+            else throw(IllegalArgumentException("비밀번호가 일치하지 않습니다."))
         }
-        val token = tokenProvider.createToken("${userDto?.loginId}:${userDto?.role}")
+        val token = tokenProvider.createToken("${userEntity.userId}:${userEntity.role}")
         val refreshToken = tokenProvider.createRefreshToken()
-        userRefreshTokenRepository.findByIdOrNull(userEntity!!.userId)?.updateRefeshToken(refreshToken)
+        userRefreshTokenRepository.findByIdOrNull(userEntity.userId)?.updateRefeshToken(refreshToken)
             ?: userRefreshTokenRepository.save(UserRefreshTokenEntity(userEntity,refreshToken))
-        return userDto?.asLoginResponse(token,refreshToken)
+        return userDto.asLoginResponse(token,refreshToken)
     }
+
+    //아이디 중복, 시스템 이름 중복 검사
     fun checkDuplicate(loginId: String, systemName: String) = checkLoginId(loginId) && checkSystemName(systemName)
     fun checkLoginId(loginId: String) = !userRepository.existsByLoginId(loginId)
     fun checkSystemName(systemName: String) =  !systemRepository.existsBySystemName(systemName)
@@ -82,6 +85,8 @@ class LoginService(
             systemRepository.save(system)
         }
     }
+
+    //로그아웃한 유저의 토큰을 블랙리스트에 추가
     fun addToBlackList(token: String){
         val expireDate = tokenProvider.getExpireDate(token)
         blackListRepository.save(BlackListEntity(token,expireDate))

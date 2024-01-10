@@ -1,7 +1,7 @@
 package com.knusolution.datahub.security
 
 import com.knusolution.datahub.security.domain.BlackListRepository
-import io.jsonwebtoken.JwtException
+import io.jsonwebtoken.ExpiredJwtException
 import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -22,30 +22,52 @@ class JwtAuthenticationFilter(
     private val blackListRepository: BlackListRepository)
     : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+        println("check1")
         try{
-            val token = parseBearerToken(request)
-            tokenProvider.validateToken(token!!)
-
-            if(blackListRepository.existsByToken(token)) throw JwtException("Token-Invalid, 로그아웃으로 만료된 토큰입니다.")
-
-            val user = parseUserSpecification(token)
-            UsernamePasswordAuthenticationToken.authenticated(user, token, user.authorities)
+            val accessToken = parseBearerToken(request,HttpHeaders.AUTHORIZATION) // 토큰 파싱
+            println("check2")
+            //블랙리스트에서 로그아웃된 토큰인지 검사
+            //if(blackListRepository.existsByToken(token!!)) throw JwtException("Token-Invalid, 로그아웃으로 만료된 토큰입니다.")
+            val user = parseUserSpecification(accessToken)
+            println("check3")
+            UsernamePasswordAuthenticationToken.authenticated(user, accessToken, user.authorities)
                     .apply { details = WebAuthenticationDetails(request) }
                     .also { SecurityContextHolder.getContext().authentication = it }
+        } catch (e: ExpiredJwtException) {
+            reissueAccessToken(request, response, e)
         } catch (e: Exception) {
             request.setAttribute("exception",e)
         }
-
         filterChain.doFilter(request, response)
     }
 
-    private fun parseBearerToken(request: HttpServletRequest) = request.getHeader(HttpHeaders.AUTHORIZATION)
+
+    private fun parseBearerToken(request: HttpServletRequest, headerName: String)
+    = request.getHeader(headerName)
             .takeIf { it?.startsWith("Bearer ", true) ?: false }?.substring(7)
 
+    //토큰에서 유저 정보 파싱
     private fun parseUserSpecification(token: String?) = (
             token?.takeIf { it.length >= 10 }
                     ?.let { tokenProvider.getSubject(it) }
                     ?: "anonymous:anonymous"
             ).split(":")
             .let { User(it[0], "", listOf(SimpleGrantedAuthority(it[1]))) }
+
+    private fun reissueAccessToken(request: HttpServletRequest, response: HttpServletResponse, exception:Exception) {
+        try {
+            val refreshToken = parseBearerToken(request, "Refresh-Token") ?: throw exception
+            println("check1 $refreshToken")
+            val oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION)!!
+            tokenProvider.validateRefreshToken(refreshToken, oldAccessToken)
+            val newAccessToken = tokenProvider.recreateAccessToken(oldAccessToken)
+            val user = parseUserSpecification(newAccessToken)
+            UsernamePasswordAuthenticationToken.authenticated(user, newAccessToken, user.authorities)
+                .apply { details = WebAuthenticationDetails(request) }
+                .also { SecurityContextHolder.getContext().authentication = it }
+            response.setHeader("New-Access-Token", newAccessToken)
+        } catch (e: Exception) {
+            request.setAttribute("exception", e)
+        }
+    }
 }

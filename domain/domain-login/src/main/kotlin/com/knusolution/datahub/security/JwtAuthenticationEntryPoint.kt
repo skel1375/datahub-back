@@ -9,6 +9,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+//Filter에서의 Exception Handle을 위함
 @Component
 class JwtAuthenticationEntryPoint(
         @Qualifier("handlerExceptionResolver")
