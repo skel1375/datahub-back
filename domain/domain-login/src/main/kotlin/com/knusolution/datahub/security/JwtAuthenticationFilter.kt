@@ -22,14 +22,11 @@ class JwtAuthenticationFilter(
     private val blackListRepository: BlackListRepository)
     : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
-        println("check1")
         try{
             val accessToken = parseBearerToken(request,HttpHeaders.AUTHORIZATION) // 토큰 파싱
-            println("check2")
             //블랙리스트에서 로그아웃된 토큰인지 검사
             //if(blackListRepository.existsByToken(token!!)) throw JwtException("Token-Invalid, 로그아웃으로 만료된 토큰입니다.")
             val user = parseUserSpecification(accessToken)
-            println("check3")
             UsernamePasswordAuthenticationToken.authenticated(user, accessToken, user.authorities)
                     .apply { details = WebAuthenticationDetails(request) }
                     .also { SecurityContextHolder.getContext().authentication = it }
@@ -57,7 +54,6 @@ class JwtAuthenticationFilter(
     private fun reissueAccessToken(request: HttpServletRequest, response: HttpServletResponse, exception:Exception) {
         try {
             val refreshToken = parseBearerToken(request, "Refresh-Token") ?: throw exception
-            println("check1 $refreshToken")
             val oldAccessToken = parseBearerToken(request, HttpHeaders.AUTHORIZATION)!!
             tokenProvider.validateRefreshToken(refreshToken, oldAccessToken)
             val newAccessToken = tokenProvider.recreateAccessToken(oldAccessToken)
