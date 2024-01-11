@@ -1,10 +1,7 @@
 package com.knusolution.datahub.controll
 
-import com.knusolution.datahub.domain.JoinRequest
-import com.knusolution.datahub.domain.LoginRequest
 import com.knusolution.datahub.application.LoginService
-import com.knusolution.datahub.domain.CheckSystemNameRequest
-import com.knusolution.datahub.domain.UpdateRequest
+import com.knusolution.datahub.domain.*
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.http.ResponseEntity
@@ -42,7 +39,6 @@ class LoginController(
         return ResponseEntity.ok(loginService.updateUser(req))
     }
 
-
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("/user/del")
     fun delUserSystem(@RequestParam systemId:Long)
@@ -52,11 +48,9 @@ class LoginController(
     
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/logout/user")
-    fun logoutUser(request: HttpServletRequest){
+    fun logoutUser(request: HttpServletRequest, @RequestBody req: LogoutRequest){
         val authorizationHeader = request.getHeader("Authorization") ?: throw RuntimeException("No Authorization header")
         val token = authorizationHeader.removePrefix("Bearer ").trim()
-        return loginService.addToBlackList(token)
-
-       
+        return loginService.logoutUser(token,req.loginId)
     }
 }

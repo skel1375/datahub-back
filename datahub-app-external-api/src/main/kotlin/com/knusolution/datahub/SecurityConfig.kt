@@ -33,8 +33,11 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }	// 세션을 사용하지 않으므로 STATELESS 설정
             .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter::class.java)
+            .cors().and()
             .exceptionHandling { it.authenticationEntryPoint(entryPoint) }
             .build()!!
     @Bean
     fun passwordEncoder() = BCryptPasswordEncoder()
+
+
 }

@@ -25,7 +25,7 @@ class JwtAuthenticationFilter(
         try{
             val accessToken = parseBearerToken(request,HttpHeaders.AUTHORIZATION) // 토큰 파싱
             //블랙리스트에서 로그아웃된 토큰인지 검사
-            //if(blackListRepository.existsByToken(token!!)) throw JwtException("Token-Invalid, 로그아웃으로 만료된 토큰입니다.")
+            if(blackListRepository.existsByToken(accessToken!!)) throw ExpiredJwtException(null,null,"로그아웃으로 만료된 토큰")
             val user = parseUserSpecification(accessToken)
             UsernamePasswordAuthenticationToken.authenticated(user, accessToken, user.authorities)
                     .apply { details = WebAuthenticationDetails(request) }
@@ -37,7 +37,6 @@ class JwtAuthenticationFilter(
         }
         filterChain.doFilter(request, response)
     }
-
 
     private fun parseBearerToken(request: HttpServletRequest, headerName: String)
     = request.getHeader(headerName)
@@ -61,7 +60,7 @@ class JwtAuthenticationFilter(
             UsernamePasswordAuthenticationToken.authenticated(user, newAccessToken, user.authorities)
                 .apply { details = WebAuthenticationDetails(request) }
                 .also { SecurityContextHolder.getContext().authentication = it }
-            response.setHeader("New-Access-Token", newAccessToken)
+            response.setHeader("new-access-token", newAccessToken)
         } catch (e: Exception) {
             request.setAttribute("exception", e)
         }

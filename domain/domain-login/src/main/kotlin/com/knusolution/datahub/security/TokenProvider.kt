@@ -1,5 +1,6 @@
 package com.knusolution.datahub.security
 
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.knusolution.datahub.security.domain.UserRefreshTokenRepository
 import io.jsonwebtoken.*
@@ -57,11 +58,13 @@ class TokenProvider (
     }
 
     //Token : header.payload.signature이므로 [1]은 payload
-    private fun decodeJwtPayloadSubject(oldAccessToken: String) =
-        objectMapper.readValue(
-            Base64.getUrlDecoder().decode(oldAccessToken.split('.')[1]).decodeToString(),
-            Map::class.java
-        )["sub"].toString()
+    private fun decodeJwtPayloadSubject(oldAccessToken: String): String {
+        val json = Base64.getUrlDecoder().decode(oldAccessToken.split('.')[1]).decodeToString()
+        val mapType = object : TypeReference<Map<String, Any>>() {}
+
+        val data: Map<String, Any> = objectMapper.readValue(json, mapType)
+        return data["sub"].toString()
+    }
 
     fun validateToken(token: String) =
         Jwts.parserBuilder().setSigningKey(secretKey.toByteArray()).build().parseClaimsJws(token)!!

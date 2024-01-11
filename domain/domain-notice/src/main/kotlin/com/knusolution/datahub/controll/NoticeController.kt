@@ -24,19 +24,19 @@ class NoticeController(
         return noticeService.getNoticeData(noticeId)
     }
     //게시물 작성
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/notice/post")
     fun saveNotice(@RequestBody request: SaveNoticeRequest) {
         noticeService.saveNotice(request.loginId,request.noticeTitle,request.noticeContent)
     }
     //게시물 수정
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/notice/update")
     fun updateNotice(@RequestBody request:UpdateNoticeRequest) {
         noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent)
     }
     //게시물 삭제
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/notice/delete")
     fun deleteNotice(@RequestBody request: DeleteNoticeRequest) {
         noticeService.deleteNotice(request.loginId, request.noticeId)
