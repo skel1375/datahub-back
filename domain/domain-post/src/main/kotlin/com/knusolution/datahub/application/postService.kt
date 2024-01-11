@@ -114,22 +114,38 @@ class PostService(
         }
         articleRepository.save(article)
     }
-    fun delAllArticle(systemId:Long)
-    {
-        val system = systemRepository.findBySystemId(systemId)
-            val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
-            baseCategorys.forEach{baseCategory->
-                val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
-                detailCategorys.forEach{detailCategory->
-                    val articles = articleRepository.findByDetailCategory(detailCategory)
-                    articles.forEach{article->
-                        articleRepository.delete(article)
-                    }
-                    detailCategoryRepository.delete(detailCategory)
-                }
-                baseCategoryRepository.delete(baseCategory)
-            }
-    }
+//    fun delAllArticle(systemId:Long)
+//    {
+//        val system = systemRepository.findBySystemId(systemId)
+//            val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
+//            baseCategorys.forEach{baseCategory->
+//                val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
+//                detailCategorys.forEach{detailCategory->
+//                    val articles = articleRepository.findByDetailCategory(detailCategory)
+//                    articles.forEach{article->
+//                        articleRepository.delete(article)
+//                    }
+//                    detailCategoryRepository.delete(detailCategory)
+//                }
+//                baseCategoryRepository.delete(baseCategory)
+//            }
+//    }
+fun delAllArticle(systemId: Long) {
+    val system = systemRepository.findBySystemId(systemId)
+
+    val baseCategories = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
+    val baseCategoryIds = baseCategories.map { it.baseCategoryId }
+
+    val detailCategories = detailCategoryRepository.findAllByBaseCategoryBaseCategoryIdIn(baseCategoryIds)
+    val detailCategoryIds = detailCategories.map { it.detailCategoryId }
+
+    val articles = articleRepository.findByDetailCategoryDetailCategoryIdIn(detailCategoryIds)
+
+    articleRepository.deleteAll(articles)
+    detailCategoryRepository.deleteAllInBatch(detailCategories)
+    baseCategoryRepository.deleteAllInBatch(baseCategories)
+}
+
     private fun getSaveFileName(originalFilename: String?): String {
         return UUID.randomUUID().toString() + "-" + originalFilename
     }
