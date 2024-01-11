@@ -79,9 +79,7 @@ class QAService(
         if (user != null) {
             if(user.userId == qa.user.userId || user.userId == 1L) {
                 val replies = replyRepository.findByQa(qa)
-                replies.forEach { reply ->
-                    replyRepository.delete(reply)
-                }
+                replyRepository.deleteAllInBatch(replies)
                 qaRepository.delete(qa)
                 return true
             }
@@ -155,8 +153,8 @@ class QAService(
         val userSystems= userSystemRepository.findBySystemSystemId(systemId)
         val user = userSystems.firstOrNull { it.user.userId != 1L }?.user
         val replys = user?.let { replyRepository.findByUser(it) }
-        replys?.forEach { reply ->
-            replyRepository.delete(reply)
+        if (replys != null) {
+            replyRepository.deleteAllInBatch(replys)
         }
         val qas = user?.let { qaRepository.findByUser(it) }
         if(qas != null){
