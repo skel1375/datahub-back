@@ -154,13 +154,6 @@ project(":domain")
 	bootJar.enabled = false
 	jar.enabled = true
 }
-project(":security")
-{
-        val jar:Jar by tasks
-        val bootJar:BootJar by tasks
-        bootJar.enabled = false
-        jar.enabled = true
-}
 
 val bootJar : BootJar by tasks
 bootJar.enabled = false
