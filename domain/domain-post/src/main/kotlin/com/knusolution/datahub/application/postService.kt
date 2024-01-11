@@ -115,21 +115,21 @@ class PostService(
         articleRepository.save(article)
     }
 
-fun delAllArticle(systemId: Long) {
-    val system = systemRepository.findBySystemId(systemId)
+    fun delAllArticle(systemId: Long) {
+        val system = systemRepository.findBySystemId(systemId)
 
-    val baseCategories = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
-    val baseCategoryIds = baseCategories.map { it.baseCategoryId }
+        val baseCategories = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
+        val baseCategoryIds = baseCategories.map { it.baseCategoryId }
 
-    val detailCategories = detailCategoryRepository.findAllByBaseCategoryBaseCategoryIdIn(baseCategoryIds)
-    val detailCategoryIds = detailCategories.map { it.detailCategoryId }
+        val detailCategories = detailCategoryRepository.findAllByBaseCategoryBaseCategoryIdIn(baseCategoryIds)
+        val detailCategoryIds = detailCategories.map { it.detailCategoryId }
 
-    val articles = articleRepository.findByDetailCategoryDetailCategoryIdIn(detailCategoryIds)
+        val articles = articleRepository.findByDetailCategoryDetailCategoryIdIn(detailCategoryIds)
 
-    articleRepository.deleteAll(articles)
-    detailCategoryRepository.deleteAllInBatch(detailCategories)
-    baseCategoryRepository.deleteAllInBatch(baseCategories)
-}
+        articleRepository.deleteAll(articles)
+        detailCategoryRepository.deleteAllInBatch(detailCategories)
+        baseCategoryRepository.deleteAllInBatch(baseCategories)
+    }
 
     private fun getSaveFileName(originalFilename: String?): String {
         return UUID.randomUUID().toString() + "-" + originalFilename
