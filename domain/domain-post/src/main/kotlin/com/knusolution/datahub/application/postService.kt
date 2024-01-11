@@ -114,22 +114,7 @@ class PostService(
         }
         articleRepository.save(article)
     }
-//    fun delAllArticle(systemId:Long)
-//    {
-//        val system = systemRepository.findBySystemId(systemId)
-//            val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
-//            baseCategorys.forEach{baseCategory->
-//                val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
-//                detailCategorys.forEach{detailCategory->
-//                    val articles = articleRepository.findByDetailCategory(detailCategory)
-//                    articles.forEach{article->
-//                        articleRepository.delete(article)
-//                    }
-//                    detailCategoryRepository.delete(detailCategory)
-//                }
-//                baseCategoryRepository.delete(baseCategory)
-//            }
-//    }
+
 fun delAllArticle(systemId: Long) {
     val system = systemRepository.findBySystemId(systemId)
 
