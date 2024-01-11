@@ -1,6 +1,7 @@
 package com.knusolution.datahub.application
 
 import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.knusolution.datahub.domain.*
 import com.knusolution.datahub.system.domain.BaseCategoryRepository
@@ -13,6 +14,8 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.net.URLDecoder
+
 
 @Service
 class PostService(
@@ -115,20 +118,33 @@ class PostService(
         articleRepository.save(article)
     }
 
-    fun delAllArticle(systemId: Long) {
+    fun delAllArticle(systemId:Long)
+    {
         val system = systemRepository.findBySystemId(systemId)
-
-        val baseCategories = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
-        val baseCategoryIds = baseCategories.map { it.baseCategoryId }
-
-        val detailCategories = detailCategoryRepository.findAllByBaseCategoryBaseCategoryIdIn(baseCategoryIds)
-        val detailCategoryIds = detailCategories.map { it.detailCategoryId }
-
-        val articles = articleRepository.findByDetailCategoryDetailCategoryIdIn(detailCategoryIds)
-
-        articleRepository.deleteAll(articles)
-        detailCategoryRepository.deleteAllInBatch(detailCategories)
-        baseCategoryRepository.deleteAllInBatch(baseCategories)
+            val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
+            baseCategorys.forEach{baseCategory->
+                val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
+                detailCategorys.forEach{detailCategory->
+                    val articles = articleRepository.findByDetailCategory(detailCategory)
+                    articles.forEach{article->
+                        val taskFileUrl = article.taskFileUrl
+                        val splitStr = ".com/"
+                        val taskFileName= taskFileUrl.substring(taskFileUrl.lastIndexOf(splitStr) + splitStr.length)
+                        val decodeTaskFile = URLDecoder.decode(taskFileName,"UTF-8")
+                        amazonS3.deleteObject(bucket, decodeTaskFile)
+                        if(article.declineFileUrl != "") {
+                            val declineFileUrl = article.declineFileUrl
+                            val declineFileName =
+                                declineFileUrl.substring(declineFileUrl.lastIndexOf(splitStr) + splitStr.length)
+                            val decodeDeclineFile = URLDecoder.decode(declineFileName,"UTF-8")
+                            amazonS3.deleteObject(bucket, decodeDeclineFile)
+                        }
+                        articleRepository.delete(article)
+                    }
+                    detailCategoryRepository.delete(detailCategory)
+                }
+                baseCategoryRepository.delete(baseCategory)
+            }
     }
 
     private fun getSaveFileName(originalFilename: String?): String {
