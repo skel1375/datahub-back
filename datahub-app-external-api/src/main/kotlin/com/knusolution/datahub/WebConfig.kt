@@ -1,7 +1,6 @@
 package com.knusolution.datahub
 
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
@@ -12,6 +11,7 @@ class WebConfig : WebMvcConfigurer {
                 .allowedOrigins("http://localhost:5173","https://develop.data-hub-front-end.pages.dev")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
+                .exposedHeaders("new-access-token")
                 .allowCredentials(true)
     }
 }

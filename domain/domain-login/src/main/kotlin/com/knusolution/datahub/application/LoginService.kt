@@ -3,15 +3,17 @@ package com.knusolution.datahub.application
 import com.knusolution.datahub.domain.*
 import org.springframework.stereotype.Service
 import com.knusolution.datahub.domain.UserRepository
-import com.knusolution.datahub.security.domain.BlackListEntity
-import com.knusolution.datahub.security.domain.BlackListRepository
 import com.knusolution.datahub.security.TokenProvider
-import com.knusolution.datahub.security.domain.UserRefreshTokenEntity
-import com.knusolution.datahub.security.domain.UserRefreshTokenRepository
+import com.knusolution.datahub.security.domain.*
 import com.knusolution.datahub.system.domain.*
+import io.jsonwebtoken.ExpiredJwtException
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.crypto.password.PasswordEncoder
-import java.time.Instant
+import org.springframework.transaction.annotation.Transactional
+import java.util.*
+import kotlin.NoSuchElementException
 
 @Service
 class LoginService(
@@ -63,8 +65,15 @@ class LoginService(
         }
         val token = tokenProvider.createToken("${userEntity.userId}:${userEntity.role}")
         val refreshToken = tokenProvider.createRefreshToken()
-        userRefreshTokenRepository.findByIdOrNull(userEntity.userId)?.updateRefeshToken(refreshToken)
-            ?: userRefreshTokenRepository.save(UserRefreshTokenEntity(userEntity,refreshToken))
+        val existingEntity = userRefreshTokenRepository.findByIdOrNull(userEntity.userId)
+        if (existingEntity != null) {
+            // 이미 해당 엔티티가 존재하면 업데이트
+            existingEntity.updateRefreshToken(refreshToken)
+            userRefreshTokenRepository.save(existingEntity)
+        } else {
+            // 해당 엔티티가 존재하지 않으면 새로 생성하여 저장
+            userRefreshTokenRepository.save(UserRefreshTokenEntity(userEntity, refreshToken))
+        }
         return userDto.asLoginResponse(token,refreshToken)
     }
 
@@ -123,10 +132,16 @@ class LoginService(
         }
     }
 
+    @Transactional
     //로그아웃한 유저의 토큰을 블랙리스트에 추가
-    fun addToBlackList(token: String){
-        val expireDate = tokenProvider.getExpireDate(token)
-        blackListRepository.save(BlackListEntity(token,expireDate))
-        blackListRepository.deleteAllByExpireDateBefore(Instant.now())
+    fun logoutUser(token: String, loginId: String){
+        userRefreshTokenRepository.deleteById(userRepository.findByLoginId(loginId)!!.userId)
+        try {
+            val expireDate = tokenProvider.getExpireDate(token)
+            blackListRepository.save(BlackListEntity(token,expireDate))
+            blackListRepository.deleteAllByExpireDateBefore(Date())
+        } catch (e:ExpiredJwtException) {
+            ResponseEntity.status(HttpStatus.OK).body("이미 만료된 토큰입니다.")
+        }
     }
 }

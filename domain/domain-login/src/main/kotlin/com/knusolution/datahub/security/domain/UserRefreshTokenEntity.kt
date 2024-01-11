@@ -20,8 +20,9 @@ data class UserRefreshTokenEntity(
         val userId: Long? = null
         private var reissueCount: Long = 0
 
-        fun updateRefeshToken(refreshToken: String){
+        fun updateRefreshToken(refreshToken: String){
                 this.refreshToken = refreshToken
+                this.reissueCount = 0
         }
 
         fun validateRefreshToken(refreshToken: String) = this.refreshToken == refreshToken
