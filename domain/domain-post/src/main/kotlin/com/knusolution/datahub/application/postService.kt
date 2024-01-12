@@ -118,6 +118,21 @@ class PostService(
         articleRepository.save(article)
     }
 
+    fun delWaitArticle(articleId : Long):Boolean
+    {
+        val article = articleRepository.findByArticleId(articleId)
+        if(article.approval == "대기")
+        {
+            val taskFileUrl = article.taskFileUrl
+            val splitStr = ".com/"
+            val taskFileName= taskFileUrl.substring(taskFileUrl.lastIndexOf(splitStr) + splitStr.length)
+            val decodeTaskFile = URLDecoder.decode(taskFileName,"UTF-8")
+            amazonS3.deleteObject(bucket, decodeTaskFile)
+            return true
+        }
+        return false
+    }
+
     fun delAllArticle(systemId:Long)
     {
         val system = systemRepository.findBySystemId(systemId)
