@@ -64,9 +64,9 @@ class PostController(
     @DeleteMapping("/article/del-wait")
     fun delWaitArticle(
         @RequestParam systemId: Long
-    )
+    ):Boolean
     {
-        postService.delWaitArticle(systemId)
+        return postService.delWaitArticle(systemId)
     }
 }
 
