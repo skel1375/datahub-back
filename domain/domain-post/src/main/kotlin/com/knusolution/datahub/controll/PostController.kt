@@ -63,10 +63,10 @@ class PostController(
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("/article/del-wait")
     fun delWaitArticle(
-        @RequestParam systemId: Long
+        @RequestParam articleId: Long
     ):Boolean
     {
-        return postService.delWaitArticle(systemId)
+        return postService.delWaitArticle(articleId)
     }
 }
 
