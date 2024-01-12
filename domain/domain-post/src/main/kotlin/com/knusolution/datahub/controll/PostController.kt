@@ -54,9 +54,19 @@ class PostController(
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("/article/del-all")
-    fun delAllArticle(systemId:Long)
+    fun delAllArticle(
+        @RequestParam systemId:Long)
     {
         postService.delAllArticle(systemId)
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @DeleteMapping("/article/del-wait")
+    fun delWaitArticle(
+        @RequestParam systemId: Long
+    )
+    {
+        postService.delWaitArticle(systemId)
     }
 }
 
