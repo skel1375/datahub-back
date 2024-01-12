@@ -5,8 +5,10 @@ import java.util.*
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.Id
+import javax.persistence.Table
 
 @Entity
+@Table(name = "blacklist")
 data class BlackListEntity(
         @Id
         val token: String,

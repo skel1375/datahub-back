@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
+@Table(name = "article")
 data class ArticleEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

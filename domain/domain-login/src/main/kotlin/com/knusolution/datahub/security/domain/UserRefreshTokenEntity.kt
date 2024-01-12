@@ -1,19 +1,17 @@
 package com.knusolution.datahub.security.domain
 
 import com.knusolution.datahub.domain.UserEntity
-import javax.persistence.Entity
-import javax.persistence.FetchType
-import javax.persistence.Id
-import javax.persistence.JoinColumn
-import javax.persistence.MapsId
-import javax.persistence.OneToOne
+import org.jetbrains.annotations.NotNull
+import javax.persistence.*
 
 @Entity
+@Table(name = "user_refreshtoken")
 data class UserRefreshTokenEntity(
         @OneToOne(fetch = FetchType.LAZY)
         @MapsId
         @JoinColumn(name = "userId")
         val user: UserEntity,
+        @NotNull
         private var refreshToken: String
 ){
         @Id

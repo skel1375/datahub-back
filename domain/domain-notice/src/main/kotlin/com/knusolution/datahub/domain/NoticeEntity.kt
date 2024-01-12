@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull
 import javax.persistence.*
 
 @Entity
+@Table(name = "notice")
 data class NoticeEntity(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
