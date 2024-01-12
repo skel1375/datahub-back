@@ -128,6 +128,7 @@ class PostService(
             val taskFileName= taskFileUrl.substring(taskFileUrl.lastIndexOf(splitStr) + splitStr.length)
             val decodeTaskFile = URLDecoder.decode(taskFileName,"UTF-8")
             amazonS3.deleteObject(bucket, decodeTaskFile)
+            articleRepository.delete(article)
             return true
         }
         return false
