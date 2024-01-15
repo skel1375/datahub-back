@@ -68,5 +68,16 @@ class PostController(
     {
         return postService.delWaitArticle(articleId)
     }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/article/modi-decline")
+    fun updateDecline(
+        @RequestParam articleId: Long,
+        @RequestParam declineDetail: String,
+        @RequestParam file: MultipartFile
+    )
+    {
+        postService.updateDecline(articleId,declineDetail,file)
+    }
 }
 

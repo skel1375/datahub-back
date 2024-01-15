@@ -53,9 +53,7 @@ class QAService(
     fun updateQa(loginId: String,qaId: Long,updateTitle:String,updateContent:String): Boolean
     {
         val user = userRepository.findByLoginId(loginId)
-        val existQa = qaRepository.findById(qaId)
-
-        val qa = existQa.get()
+        val qa = qaRepository.findByQaId(qaId)
         if (user != null) {
             if(user.userId == qa.user.userId)
             {
@@ -73,8 +71,7 @@ class QAService(
     fun delQa(loginId: String,qaId: Long):Boolean
     {
         val user = userRepository.findByLoginId(loginId)
-        val existQa = qaRepository.findById(qaId)
-        val qa = existQa.get()
+        val qa = qaRepository.findByQaId(qaId)
 
         if (user != null) {
             if(user.userId == qa.user.userId || user.userId == 1L) {
@@ -89,9 +86,7 @@ class QAService(
 
     fun getQabyId(qaId: Long):QAEntity
     {
-        val existQa = qaRepository.findById(qaId)
-        val qa = existQa.get()
-
+        val qa = qaRepository.findByQaId(qaId)
         return qa
     }
 
@@ -105,8 +100,7 @@ class QAService(
     fun saveReply(loginId: String, qaId: Long ,replyContent:String)
     {
         val user = userRepository.findByLoginId(loginId)
-        val existQa = qaRepository.findById(qaId)
-        val qa = existQa.get()
+        val qa = qaRepository.findByQaId(qaId)
         val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         val reply= user?.let { ReplyDto(replyDate = datetime,replyContent=replyContent, user = it, qa = qa) }
 
@@ -118,8 +112,7 @@ class QAService(
     fun updateReply(loginId: String,replyId: Long,updateContent: String):Boolean
     {
         val user = userRepository.findByLoginId(loginId)
-        val existReply = replyRepository.findById(replyId)
-        val reply = existReply.get()
+        val reply = replyRepository.findByReplyId(replyId)
 
         if (user != null) {
             if(user.userId == reply.user.userId) {
@@ -136,8 +129,7 @@ class QAService(
     fun delReply(loginId: String,replyId :Long):Boolean
     {
         val user = userRepository.findByLoginId(loginId)
-        val existReply = replyRepository.findById(replyId)
-        val reply = existReply.get()
+        val reply = replyRepository.findByReplyId(replyId)
 
         if (user != null) {
             if(user.userId ==reply.user.userId || user.userId == 1L) {
