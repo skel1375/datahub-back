@@ -117,7 +117,7 @@ class PostService(
     fun updateDecline(articleId: Long,declineDetail: String,file: MultipartFile)
     {
         val article = articleRepository.findByArticleId(articleId)
-        delDeclineFile(article)
+        delFile(article.declineFileUrl)
 
         val originalFileName = file.originalFilename
         val saveFileName = getSaveFileName(originalFileName)
@@ -138,7 +138,7 @@ class PostService(
         val article = articleRepository.findByArticleId(articleId)
         if(article.approval == "대기")
         {
-            delTaskFile(article)
+            delFile(article.taskFileUrl)
             articleRepository.delete(article)
             return true
         }
@@ -154,9 +154,9 @@ class PostService(
                 detailCategorys.forEach{detailCategory->
                     val articles = articleRepository.findByDetailCategory(detailCategory)
                     articles.forEach{article->
-                        delTaskFile(article)
+                        delFile(article.taskFileUrl)
                         if(article.declineFileUrl != "") {
-                            delDeclineFile(article)
+                            delFile(article.declineFileUrl)
                         }
                         articleRepository.delete(article)
                     }
@@ -170,23 +170,12 @@ class PostService(
         return UUID.randomUUID().toString() + "-" + originalFilename
     }
 
-    private fun delTaskFile(article : ArticleEntity)
+    private fun delFile(fileUrl:String)
     {
-        val taskFileUrl = article.taskFileUrl
         val splitStr = ".com/"
-        val taskFileName= taskFileUrl.substring(taskFileUrl.lastIndexOf(splitStr) + splitStr.length)
-        val decodeTaskFile = URLDecoder.decode(taskFileName,"UTF-8")
+        val fileName = fileUrl.substring(fileUrl.lastIndexOf(splitStr) + splitStr.length)
+        val decodeTaskFile = URLDecoder.decode(fileName,"UTF-8")
         amazonS3.deleteObject(bucket, decodeTaskFile)
-    }
-
-    private fun delDeclineFile(article: ArticleEntity)
-    {
-        val declineFileUrl = article.declineFileUrl
-        val splitStr = ".com/"
-        val declineFileName =
-            declineFileUrl.substring(declineFileUrl.lastIndexOf(splitStr) + splitStr.length)
-        val decodeDeclineFile = URLDecoder.decode(declineFileName,"UTF-8")
-        amazonS3.deleteObject(bucket, decodeDeclineFile)
     }
 
 }
