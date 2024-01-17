@@ -8,4 +8,5 @@ interface UserRepository:JpaRepository<UserEntity,Long> {
     fun findByLoginId(loginId: String): UserEntity?
 
     fun findByUserId(userId : Long): UserEntity
+    fun findByRole(role: Role):UserEntity
 }
