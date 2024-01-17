@@ -13,7 +13,6 @@ import java.time.format.DateTimeFormatter
 class NoticeService(
     private val noticeRepository: NoticeRepository,
     private val userRepository: UserRepository,
-    private val userSystemRepository: UserSystemRepository
 ) {
     val pageSize = 10
     fun getNoticePage():Int

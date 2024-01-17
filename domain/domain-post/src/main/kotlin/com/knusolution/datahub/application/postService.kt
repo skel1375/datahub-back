@@ -1,7 +1,6 @@
 package com.knusolution.datahub.application
 
 import com.amazonaws.services.s3.AmazonS3
-import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.knusolution.datahub.domain.*
 import com.knusolution.datahub.system.domain.BaseCategoryRepository
@@ -84,7 +83,6 @@ class PostService(
         val detailCategory = existingDetailCategory.get()
         val originalFileName = file.originalFilename
         val saveFileName = getSaveFileName(originalFileName)
-
         val objMeta = ObjectMetadata()
         objMeta.contentLength = file.inputStream.available().toLong()
         amazonS3.putObject(bucket,saveFileName,file.inputStream , objMeta)
@@ -96,14 +94,11 @@ class PostService(
         articleRepository.save(article.asEntity())
     }
     fun postDeclineFile(articleId : Long , approval : String , declineDetail : String? , file : MultipartFile?){
-        val existingArticle = articleRepository.findById(articleId)
-        val article = existingArticle.get()
+        val article = articleRepository.findByArticleId(articleId)
         article.approval = approval
-
         if(approval == "반려" && file != null && declineDetail!= null ) {
             val originalFileName = file.originalFilename
             val saveFileName = getSaveFileName(originalFileName)
-
             val objMeta = ObjectMetadata()
             objMeta.contentLength = file.inputStream.available().toLong()
             amazonS3.putObject(bucket,saveFileName,file.inputStream , objMeta)
@@ -118,16 +113,32 @@ class PostService(
         articleRepository.save(article)
     }
 
+    //반려일때만 API사용가능?
+    fun updateDecline(articleId: Long,declineDetail: String,file: MultipartFile)
+    {
+        val article = articleRepository.findByArticleId(articleId)
+        delFile(article.declineFileUrl)
+
+        val originalFileName = file.originalFilename
+        val saveFileName = getSaveFileName(originalFileName)
+        val objMeta = ObjectMetadata()
+        objMeta.contentLength = file.inputStream.available().toLong()
+        amazonS3.putObject(bucket,saveFileName,file.inputStream , objMeta)
+
+        val fileUrl = amazonS3.getUrl(bucket, saveFileName).toString()
+
+        article.declineDetail = declineDetail
+        article.declineFileName = originalFileName ?: "declineFile"
+        article.declineFileUrl = fileUrl
+        articleRepository.save(article)
+    }
+
     fun delWaitArticle(articleId : Long):Boolean
     {
         val article = articleRepository.findByArticleId(articleId)
         if(article.approval == "대기")
         {
-            val taskFileUrl = article.taskFileUrl
-            val splitStr = ".com/"
-            val taskFileName= taskFileUrl.substring(taskFileUrl.lastIndexOf(splitStr) + splitStr.length)
-            val decodeTaskFile = URLDecoder.decode(taskFileName,"UTF-8")
-            amazonS3.deleteObject(bucket, decodeTaskFile)
+            delFile(article.taskFileUrl)
             articleRepository.delete(article)
             return true
         }
@@ -143,17 +154,9 @@ class PostService(
                 detailCategorys.forEach{detailCategory->
                     val articles = articleRepository.findByDetailCategory(detailCategory)
                     articles.forEach{article->
-                        val taskFileUrl = article.taskFileUrl
-                        val splitStr = ".com/"
-                        val taskFileName= taskFileUrl.substring(taskFileUrl.lastIndexOf(splitStr) + splitStr.length)
-                        val decodeTaskFile = URLDecoder.decode(taskFileName,"UTF-8")
-                        amazonS3.deleteObject(bucket, decodeTaskFile)
+                        delFile(article.taskFileUrl)
                         if(article.declineFileUrl != "") {
-                            val declineFileUrl = article.declineFileUrl
-                            val declineFileName =
-                                declineFileUrl.substring(declineFileUrl.lastIndexOf(splitStr) + splitStr.length)
-                            val decodeDeclineFile = URLDecoder.decode(declineFileName,"UTF-8")
-                            amazonS3.deleteObject(bucket, decodeDeclineFile)
+                            delFile(article.declineFileUrl)
                         }
                         articleRepository.delete(article)
                     }
@@ -166,4 +169,13 @@ class PostService(
     private fun getSaveFileName(originalFilename: String?): String {
         return UUID.randomUUID().toString() + "-" + originalFilename
     }
+
+    private fun delFile(fileUrl:String)
+    {
+        val splitStr = ".com/"
+        val fileName = fileUrl.substring(fileUrl.lastIndexOf(splitStr) + splitStr.length)
+        val decodeTaskFile = URLDecoder.decode(fileName,"UTF-8")
+        amazonS3.deleteObject(bucket, decodeTaskFile)
+    }
+
 }

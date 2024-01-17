@@ -31,7 +31,7 @@ class LoginService(
         if(checkDuplicate(req.loginId,req.systemName)){
             val system = systemRepository.save(req.asSystemDto().asEntity())
             val user = req.asUserDto().asEntity(password = req.loginId, encoder)
-            val admin = findAdmin()
+            val admin = userRepository.findByRole(Role.ADMIN)
             val adminSystem = UserSystemDto(user = admin, system = system).asEntity()
             val userSystem = UserSystemDto(user = user, system = system).asEntity()
             userRepository.save(user)
@@ -68,6 +68,7 @@ class LoginService(
         val existingEntity = userRefreshTokenRepository.findByIdOrNull(userEntity.userId)
         if (existingEntity != null) {
             // 이미 해당 엔티티가 존재하면 업데이트
+            existingEntity.updateRefreshToken(refreshToken)
             existingEntity.updateRefreshToken(refreshToken)
             userRefreshTokenRepository.save(existingEntity)
         } else {
@@ -108,17 +109,12 @@ class LoginService(
         systemRepository.save(system)
     }
 
-    fun findAdmin():UserEntity {
-        val admin = userRepository.findByUserId(1L)
-        return admin
-    }
-
     fun delUserSystem(systemId:Long)
     {
         val system =systemRepository.findBySystemId(systemId)
-        val admin=findAdmin()
+        val admin= userRepository.findByRole(Role.ADMIN)
         val userSystems= userSystemRepository.findBySystem(system)
-        val user = userSystems.firstOrNull { it.user.userId != 1L }?.user
+        val user = userSystems.firstOrNull { it.user.role != Role.ADMIN }?.user
         val userSystem= user?.let { userSystemRepository.findByUserAndSystem(it,system) }
         val adminSystem=userSystemRepository.findByUserAndSystem(admin,system)
 
