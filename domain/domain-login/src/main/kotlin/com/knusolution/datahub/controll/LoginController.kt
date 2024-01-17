@@ -53,4 +53,10 @@ class LoginController(
         val token = authorizationHeader.removePrefix("Bearer ").trim()
         return loginService.logoutUser(token,req.loginId)
     }
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/user/bysystem")
+    fun getUserInfo(@RequestParam systemId: Long): UserDto
+    {
+        return loginService.getUserInfor(systemId)
+    }
 }
