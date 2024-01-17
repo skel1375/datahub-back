@@ -55,7 +55,7 @@ class LoginController(
     }
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/user/bysystem")
-    fun getUserInfo(@RequestParam systemId: Long): UserDto
+    fun getUserInfo(@RequestParam systemId: Long): InfoResponse
     {
         return loginService.getUserInfor(systemId)
     }

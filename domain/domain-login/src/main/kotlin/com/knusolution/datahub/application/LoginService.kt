@@ -140,10 +140,11 @@ class LoginService(
             ResponseEntity.status(HttpStatus.OK).body("이미 만료된 토큰입니다.")
         }
     }
-    fun getUserInfor(systemId: Long): UserDto
+    fun getUserInfor(systemId: Long): InfoResponse
     {
         val userSystems = userSystemRepository.findBySystemSystemId(systemId)
-        val user = userSystems.first{ it.user.role != Role.ADMIN }.user
-        return user.asUserDto()
+        val user = userSystems.first{ it.user.role != Role.ADMIN }.user.asUserDto()
+        val systemName= systemRepository.findBySystemId(systemId).systemName
+        return user.asInfoResponse(systemName)
     }
 }
