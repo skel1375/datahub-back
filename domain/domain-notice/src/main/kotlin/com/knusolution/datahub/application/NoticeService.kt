@@ -20,7 +20,7 @@ class NoticeService(
     val pageSize = 10
 
     fun getNotice(page:Int): Page<NoticeInfoDto> {
-        val pageable = PageRequest.of(page,pageSize, Sort.by("noticeId"))
+        val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId"))
         return noticeRepository.findAll(pageable).map{it.asInfoDto()}
     }
 

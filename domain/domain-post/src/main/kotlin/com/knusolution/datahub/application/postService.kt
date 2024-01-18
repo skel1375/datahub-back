@@ -34,7 +34,7 @@ class PostService(
     fun getWaitArticles(page : Int) : Page<ArticleInfoDto>
     {
         val approval = "대기"
-        val pageable = PageRequest.of(page,pageSize, Sort.by("articleId").descending())
+        val pageable = PageRequest.of(page-1,pageSize, Sort.by("articleId").descending())
         articleRepository.findAll(pageable)
         return articleRepository.findAllByApproval(approval,pageable).map{it.asInfoDto()}
     }
@@ -42,7 +42,7 @@ class PostService(
     fun getArticles(detailCategoryId: Long,page: Int):Page<ArticleInfoDto>
     {
         val detailCategory = detailCategoryRepository.findByDetailCategoryId(detailCategoryId)
-        val pageable = PageRequest.of(page,pageSize, Sort.by("articleId").descending())
+        val pageable = PageRequest.of(page-1,pageSize, Sort.by("articleId").descending())
 
         return articleRepository.findAllByDetailCategory(detailCategory,pageable).map { it.asInfoDto() }
     }

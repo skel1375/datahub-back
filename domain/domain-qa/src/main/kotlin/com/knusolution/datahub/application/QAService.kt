@@ -20,7 +20,7 @@ class QAService(
 
     fun getQa(page:Int): Page<QAInfoDto>
     {
-        val pageable = PageRequest.of(page,pageSize, Sort.by("QaId").descending())
+        val pageable = PageRequest.of(page-1,pageSize, Sort.by("QaId").descending())
         return qaRepository.findAll(pageable).map{it.asInfoDto()}
     }
 

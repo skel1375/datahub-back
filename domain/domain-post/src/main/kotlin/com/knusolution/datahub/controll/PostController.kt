@@ -1,9 +1,7 @@
 package com.knusolution.datahub.controll
 
-import com.knusolution.datahub.domain.ArticleResponse
 import com.knusolution.datahub.application.PostService
 import com.knusolution.datahub.domain.ArticleInfoDto
-import com.knusolution.datahub.domain.asInfoDto
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
