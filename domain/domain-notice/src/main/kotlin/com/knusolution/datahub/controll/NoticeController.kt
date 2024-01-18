@@ -2,6 +2,7 @@ package com.knusolution.datahub.controll
 
 import com.knusolution.datahub.application.NoticeService
 import com.knusolution.datahub.domain.*
+import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
@@ -9,14 +10,13 @@ import org.springframework.web.bind.annotation.*
 class NoticeController(
         private val noticeService: NoticeService
 ) {
-    //게시물 정보, 페이징
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notices")
-    fun getNotices(@RequestParam page: Int): NoticeInfoResponse? {
-        val allPage = noticeService.getNoticePage()
-        val notices = noticeService.getNotice(page).map { it.asInfoDto() }
-        return NoticeInfoResponse(allPage = allPage, page = page, notices = notices)
+    fun getNotice(@RequestParam page:Int) : Page<NoticeInfoDto>
+    {
+        return noticeService.getNotice(page)
     }
+
     //게시물 조회
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notice")

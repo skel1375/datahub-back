@@ -1,11 +1,9 @@
 package com.knusolution.datahub.controll
 
 import com.knusolution.datahub.application.QAService
-import com.knusolution.datahub.domain.QAInfoResponse
-import com.knusolution.datahub.domain.ReplyResponse
-import com.knusolution.datahub.domain.asDto
-import com.knusolution.datahub.domain.asInfoDto
+import com.knusolution.datahub.domain.*
 import org.apache.el.parser.BooleanNode
+import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,11 +20,9 @@ class QAController(
     @GetMapping("/qa")
     fun getQas(
         @RequestParam page:Int
-    ): QAInfoResponse
+    ):Page<QAInfoDto>
     {
-        val allPage = qaService.getQaPage()
-        val qas= qaService.getQa(page).map{it.asInfoDto()}
-        return QAInfoResponse(allPage=allPage, page=page, qas=qas)
+        return qaService.getQa(page)
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
@@ -70,7 +66,7 @@ class QAController(
     {
         val qa=qaService.getQabyId(qaId).asInfoDto()
         val content= qaService.getQabyId(qaId).asDto().qaContent
-        val replys= qaService.getReply(qaId).map{it.asInfoDto()}
+        val replys= qaService.getReply(qaId)
 
         return ReplyResponse(qa=qa,content=content, replys = replys)
     }
