@@ -18,29 +18,6 @@ class QAService(
 ){
     val pageSize = 10
 
-//    fun getQaPage():Int
-//    {
-//        val qas=qaRepository.findAll()
-//        val allPage = if (qas.size % pageSize == 0) {
-//            qas.size / pageSize
-//        } else {
-//            qas.size / pageSize + 1
-//        }
-//
-//        return allPage
-//    }
-//    fun getQa(page : Int):List<QAEntity>
-//    {
-//        val qas = qaRepository.findAll().reversed()
-//
-//        val startIndex=(page-1)*pageSize
-//        if (startIndex >= qas.size) {
-//            return emptyList()
-//        }
-//        val endIndex = startIndex + pageSize
-//        return qas.subList(startIndex,minOf(endIndex,qas.size))
-//    }
-
     fun getQa(page:Int): Page<QAInfoDto>
     {
         val pageable = PageRequest.of(page,pageSize, Sort.by("QaId").descending())
