@@ -7,6 +7,9 @@ import com.knusolution.datahub.system.domain.BaseCategoryRepository
 import com.knusolution.datahub.system.domain.DetailCategoryRepository
 import com.knusolution.datahub.system.domain.SystemRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
@@ -28,55 +31,20 @@ class PostService(
 ){
     val pageSize=10
 
-    fun getWaitPage():Int
+    fun getWaitArticles(page : Int) : Page<ArticleInfoDto>
     {
-        val aprove="대기"
-        val articles=articleRepository.findByApproval(aprove)
-        val allpage = if (articles.size % pageSize == 0) {
-            articles.size / pageSize
-        } else {
-            articles.size / pageSize + 1
-        }
-
-        return allpage
+        val approval = "대기"
+        val pageable = PageRequest.of(page,pageSize, Sort.by("articleId").descending())
+        articleRepository.findAll(pageable)
+        return articleRepository.findAllByApproval(approval,pageable).map{it.asInfoDto()}
     }
 
-    fun getWaitArticles(page: Int): List<ArticleEntity>
+    fun getArticles(detailCategoryId: Long,page: Int):Page<ArticleInfoDto>
     {
-        val aprove="대기"
-        val articles=articleRepository.findByApproval(aprove).reversed()
+        val detailCategory = detailCategoryRepository.findByDetailCategoryId(detailCategoryId)
+        val pageable = PageRequest.of(page,pageSize, Sort.by("articleId").descending())
 
-        val startIndex=(page-1)*pageSize
-        if (startIndex >= articles.size) {
-            return emptyList()
-        }
-        val endIndex = startIndex + pageSize
-        return articles.subList(startIndex, minOf(endIndex, articles.size))
-    }
-
-    fun getArticles(detailCategoryId: Long,page: Int): List<ArticleEntity>{
-        val existingDetailCategory = detailCategoryRepository.findById(detailCategoryId)
-        val detailCategory = existingDetailCategory.get()
-        val articles=articleRepository.findByDetailCategory(detailCategory).reversed()
-        val startIndex=(page-1)*pageSize
-        if (startIndex >= articles.size) {
-            return emptyList()
-        }
-        val endIndex = startIndex + pageSize
-        return articles.subList(startIndex, minOf(endIndex, articles.size))
-    }
-    fun getPage(detailCategoryId: Long): Int
-    {
-        val existingDetailCategory = detailCategoryRepository.findById(detailCategoryId)
-        val detailCategory = existingDetailCategory.get()
-        val articles=articleRepository.findByDetailCategory(detailCategory)
-        val allpage = if (articles.size % pageSize == 0) {
-            articles.size / pageSize
-        } else {
-            articles.size / pageSize + 1
-        }
-
-        return allpage
+        return articleRepository.findAllByDetailCategory(detailCategory,pageable).map { it.asInfoDto() }
     }
     fun saveArticle( detailCategoryId : Long , file : MultipartFile){
         val existingDetailCategory = detailCategoryRepository.findById(detailCategoryId)

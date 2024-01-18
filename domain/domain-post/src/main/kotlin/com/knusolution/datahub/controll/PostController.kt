@@ -2,7 +2,9 @@ package com.knusolution.datahub.controll
 
 import com.knusolution.datahub.domain.ArticleResponse
 import com.knusolution.datahub.application.PostService
+import com.knusolution.datahub.domain.ArticleInfoDto
 import com.knusolution.datahub.domain.asInfoDto
+import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -13,23 +15,19 @@ class PostController(
 ){
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/wait-article")
-    fun waitArticles(@RequestParam page:Int): ArticleResponse?
+    fun waitArticles(@RequestParam page:Int): Page<ArticleInfoDto>
     {
-        val allpage = postService.getWaitPage()
-        val articles = postService.getWaitArticles(page).map{it.asInfoDto()}
-        return ArticleResponse(allPage = allpage, page = page, articles = articles)
+        return postService.getWaitArticles(page)
     }
+
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/articles")
     fun getArticles(
         @RequestParam detailCategoryId: Long,
         @RequestParam page: Int
-    ): ArticleResponse?
+    ): Page<ArticleInfoDto>
     {
-        val allpage = postService.getPage(detailCategoryId)
-        val articles = postService.getArticles(detailCategoryId,page).map{it.asInfoDto()}
-
-        return ArticleResponse(allPage = allpage, page = page, articles = articles)
+        return postService.getArticles(detailCategoryId,page)
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")

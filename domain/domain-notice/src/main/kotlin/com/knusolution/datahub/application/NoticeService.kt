@@ -1,6 +1,9 @@
 package com.knusolution.datahub.application
 
 import com.knusolution.datahub.domain.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
@@ -15,28 +18,10 @@ class NoticeService(
     private val userRepository: UserRepository,
 ) {
     val pageSize = 10
-    fun getNoticePage():Int
-    {
-        val notices = noticeRepository.findAll()
-        val allPage = if(notices.size % pageSize == 0){
-            notices.size / pageSize
-        } else {
-            notices.size / pageSize + 1
-        }
-        return allPage
-    }
 
-    //해당 페이지에 있는 공지사항을 리스트로 반환
-    @Transactional(readOnly = true)
-    fun getNotice(page: Int): List<NoticeEntity> {
-       val notices = noticeRepository.findAll().reversed()
-
-        val startIndex = (page-1) * pageSize
-        if(startIndex >= notices.size){
-            return emptyList()
-        }
-        val endIndex = startIndex + pageSize
-        return notices.subList(startIndex, minOf(endIndex, notices.size))
+    fun getNotice(page:Int): Page<NoticeInfoDto> {
+        val pageable = PageRequest.of(page,pageSize, Sort.by("noticeId"))
+        return noticeRepository.findAll(pageable).map{it.asInfoDto()}
     }
 
     //모달 띄울 때 정보 요청, 필요 시 사용

@@ -1,6 +1,9 @@
 package com.knusolution.datahub.application
 
 import com.knusolution.datahub.domain.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -15,27 +18,33 @@ class QAService(
 ){
     val pageSize = 10
 
-    fun getQaPage():Int
-    {
-        val qas=qaRepository.findAll()
-        val allPage = if (qas.size % pageSize == 0) {
-            qas.size / pageSize
-        } else {
-            qas.size / pageSize + 1
-        }
+//    fun getQaPage():Int
+//    {
+//        val qas=qaRepository.findAll()
+//        val allPage = if (qas.size % pageSize == 0) {
+//            qas.size / pageSize
+//        } else {
+//            qas.size / pageSize + 1
+//        }
+//
+//        return allPage
+//    }
+//    fun getQa(page : Int):List<QAEntity>
+//    {
+//        val qas = qaRepository.findAll().reversed()
+//
+//        val startIndex=(page-1)*pageSize
+//        if (startIndex >= qas.size) {
+//            return emptyList()
+//        }
+//        val endIndex = startIndex + pageSize
+//        return qas.subList(startIndex,minOf(endIndex,qas.size))
+//    }
 
-        return allPage
-    }
-    fun getQa(page : Int):List<QAEntity>
+    fun getQa(page:Int): Page<QAInfoDto>
     {
-        val qas = qaRepository.findAll().reversed()
-
-        val startIndex=(page-1)*pageSize
-        if (startIndex >= qas.size) {
-            return emptyList()
-        }
-        val endIndex = startIndex + pageSize
-        return qas.subList(startIndex,minOf(endIndex,qas.size))
+        val pageable = PageRequest.of(page,pageSize, Sort.by("QaId").descending())
+        return qaRepository.findAll(pageable).map{it.asInfoDto()}
     }
 
     fun saveQa(loginId : String, qaTitle: String, qaContent: String)
@@ -90,11 +99,11 @@ class QAService(
         return qa
     }
 
-    fun getReply(qaId: Long) : List<ReplyEntity>
+    fun getReply(qaId: Long) : List<ReplyInfoDto>
     {
         val qa=getQabyId(qaId)
         val replys=replyRepository.findByQa(qa)
-        return replys
+        return replys.map{it.asInfoDto()}
     }
 
     fun saveReply(loginId: String, qaId: Long ,replyContent:String)
