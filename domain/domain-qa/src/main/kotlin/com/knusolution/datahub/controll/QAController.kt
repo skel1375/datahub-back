@@ -25,13 +25,22 @@ class QAController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/qa/search")
-    fun searchQA(
+    @GetMapping("/qa/searchByTitle")
+    fun searchQAByTitle(
         @RequestParam page:Int,
         @RequestParam keyword:String
-    ): Page<QAInfoDto>
+    ): Page<QAInfoDto>?
     {
-        return qaService.searchQa(page,keyword)
+        return qaService.searchQaByTitle(page,keyword)
+    }
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @GetMapping("/qa/searchByWriter")
+    fun searchQAByWriter(
+        @RequestParam page:Int,
+        @RequestParam loginId:String
+    ): Page<QAInfoDto>?
+    {
+        return qaService.searchQaByWriter(page,loginId)
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
