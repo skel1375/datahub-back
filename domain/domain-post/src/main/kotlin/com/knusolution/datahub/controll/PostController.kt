@@ -49,32 +49,34 @@ class PostController(
         postService.postDeclineFile(articleId, approval, declineDetail, file)
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/article/del-all")
     fun delAllArticle(
         @RequestParam systemId:Long)
     {
         postService.delAllArticle(systemId)
     }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @DeleteMapping("/article/del-wait")
-    fun delWaitArticle(
-        @RequestParam articleId: Long
-    ):Boolean
-    {
-        return postService.delWaitArticle(articleId)
-    }
-
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PutMapping("/article/modi-decline")
-    fun updateDecline(
-        @RequestParam articleId: Long,
-        @RequestParam declineDetail: String,
-        @RequestParam file: MultipartFile
+    @PostMapping("/article/update")
+    fun updateArticle(
+        @RequestParam articleId : Long,
+        @RequestParam approval : String,
+        @RequestParam(required = false) declineDetail :String?,
+        @RequestPart(required = false) file : MultipartFile?,
+        @RequestParam isFileChange : Boolean
     )
     {
-        postService.updateDecline(articleId,declineDetail,file)
+        postService.updateArticle(articleId, approval, declineDetail, file, isFileChange)
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @DeleteMapping("/article/del")
+    fun delWaitArticle(
+        @RequestParam articleId: Long
+    )
+    {
+        postService.delArticle(articleId)
+    }
+
 }
 

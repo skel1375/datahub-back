@@ -85,36 +85,51 @@ class PostService(
         articleRepository.save(article)
     }
 
-    //반려일때만 API사용가능?
-    fun updateDecline(articleId: Long,declineDetail: String,file: MultipartFile)
+    fun updateArticle(articleId:Long,approval: String,declineDetail: String?,file: MultipartFile?,isFileChange: Boolean)
     {
         val article = articleRepository.findByArticleId(articleId)
-        delFile(article.declineFileUrl)
-
-        val originalFileName = file.originalFilename
-        val saveFileName = getSaveFileName(originalFileName)
-        val objMeta = ObjectMetadata()
-        objMeta.contentLength = file.inputStream.available().toLong()
-        amazonS3.putObject(bucket,saveFileName,file.inputStream , objMeta)
-
-        val fileUrl = amazonS3.getUrl(bucket, saveFileName).toString()
-
-        article.declineDetail = declineDetail
-        article.declineFileName = originalFileName ?: "declineFile"
-        article.declineFileUrl = fileUrl
-        articleRepository.save(article)
-    }
-
-    fun delWaitArticle(articleId : Long):Boolean
-    {
-        val article = articleRepository.findByArticleId(articleId)
-        if(article.approval == "대기")
+        if(article.approval == "승인")
         {
-            delFile(article.taskFileUrl)
-            articleRepository.delete(article)
-            return true
+            if(approval == "반려")
+                postDeclineFile(articleId, approval, declineDetail, file)
         }
-        return false
+        else
+        {
+            if(approval == "승인")
+            {
+                delFile(article.declineFileUrl)
+                article.approval = approval
+                article.declineFileUrl = ""
+                article.declineDetail=""
+                article.declineFileName=""
+                articleRepository.save(article)
+            }
+            else
+            {
+                if(isFileChange)
+                {
+                    delFile(article.declineFileUrl)
+                    postDeclineFile(articleId, approval, declineDetail, file)
+                }
+                else{
+                    if (declineDetail != null) {
+                        article.declineDetail = declineDetail
+                    }
+                    articleRepository.save(article)
+                }
+            }
+        }
+
+    }
+    fun delArticle(articleId : Long)
+    {
+        val article = articleRepository.findByArticleId(articleId)
+        delFile(article.taskFileUrl)
+        if(article.approval == "반려")
+        {
+            delFile(article.declineFileUrl)
+        }
+        articleRepository.delete(article)
     }
 
     fun delAllArticle(systemId:Long)
