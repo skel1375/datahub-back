@@ -4,8 +4,6 @@ import com.knusolution.datahub.domain.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -65,6 +63,10 @@ class NoticeService(
         noticeRepository.deleteById(noticeId)
     }
 
+    fun searchNotice(page: Int, keyword: String): Page<NoticeInfoDto> {
+        val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId"))
+        return noticeRepository.findByNoticeTitleContaining(keyword,pageable).map { it.asInfoDto() }
+    }
     fun findUserByLoginId(loginId: String): UserEntity?{
         val user = userRepository.findByLoginId(loginId)
                 ?: throw NoSuchElementException("Invalid loginId : $loginId 존재하지 않는 아이디입니다.")

@@ -42,4 +42,9 @@ class NoticeController(
         noticeService.deleteNotice(request.loginId, request.noticeId)
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @GetMapping("/notice/search")
+    fun searchNotice(@RequestParam page: Int, @RequestParam keyword:String):Page<NoticeInfoDto> {
+        return noticeService.searchNotice(page,keyword)
+    }
 }
