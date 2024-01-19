@@ -25,7 +25,7 @@ class QAController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/qa/searchByTitle")
+    @GetMapping("/qa/search-by-title")
     fun searchQAByTitle(
         @RequestParam page:Int,
         @RequestParam keyword:String
@@ -34,7 +34,7 @@ class QAController(
         return qaService.searchQaByTitle(page,keyword)
     }
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/qa/searchByWriter")
+    @GetMapping("/qa/search-by-writer")
     fun searchQAByWriter(
         @RequestParam page:Int,
         @RequestParam loginId:String
