@@ -2,6 +2,7 @@ package com.knusolution.datahub.controll
 
 import com.knusolution.datahub.application.PostService
 import com.knusolution.datahub.domain.ArticleInfoDto
+import com.knusolution.datahub.domain.WaitArticleDto
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -13,7 +14,7 @@ class PostController(
 ){
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/wait-article")
-    fun waitArticles(@RequestParam page:Int): Page<ArticleInfoDto>
+    fun waitArticles(@RequestParam page:Int): Page<WaitArticleDto>
     {
         return postService.getWaitArticles(page)
     }
