@@ -2,7 +2,6 @@ package com.knusolution.datahub.controll
 
 import com.knusolution.datahub.application.QAService
 import com.knusolution.datahub.domain.*
-import org.apache.el.parser.BooleanNode
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -23,6 +22,16 @@ class QAController(
     ):Page<QAInfoDto>
     {
         return qaService.getQa(page)
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @GetMapping("/qa/search")
+    fun searchQA(
+        @RequestParam page:Int,
+        @RequestParam keyword:String
+    ): Page<QAInfoDto>
+    {
+        return qaService.searchQa(page,keyword)
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")

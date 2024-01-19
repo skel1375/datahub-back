@@ -24,6 +24,12 @@ class QAService(
         return qaRepository.findAll(pageable).map{it.asInfoDto()}
     }
 
+    fun searchQa(page: Int, keyword:String):Page<QAInfoDto>
+    {
+        val pageable = PageRequest.of(page-1,pageSize,Sort.by("QaId").descending())
+        return qaRepository.findByQaTitleContaining(keyword,pageable).map { it.asInfoDto() }
+    }
+
     fun saveQa(loginId : String, qaTitle: String, qaContent: String)
     {
         val user = userRepository.findByLoginId(loginId)

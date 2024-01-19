@@ -6,7 +6,6 @@ import javax.persistence.Column
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
-import java.time.LocalDateTime
 import javax.persistence.*
 
 @Entity
@@ -44,7 +43,6 @@ data class ArticleEntity(
     @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 설정
     @JoinColumn(name = "detailCategoryId")
     val detailCategory: DetailCategoryEntity
-
     )
 
 fun ArticleDto.asEntity( ) = ArticleEntity(
