@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*
 class NoticeController(
         private val noticeService: NoticeService
 ) {
+    //페이지네이션
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notices")
     fun getNotice(@RequestParam page:Int) : Page<NoticeInfoDto>
@@ -23,18 +24,21 @@ class NoticeController(
     fun getNotice(@RequestParam noticeId: Long): NoticeModalResponse? {
         return noticeService.getNoticeData(noticeId)
     }
+
     //게시물 작성
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/notice/post")
     fun saveNotice(@RequestBody request: SaveNoticeRequest) {
         noticeService.saveNotice(request.loginId,request.noticeTitle,request.noticeContent)
     }
+
     //게시물 수정
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/notice/update")
     fun updateNotice(@RequestBody request:UpdateNoticeRequest) {
         noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent)
     }
+
     //게시물 삭제
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/notice/delete")
@@ -42,9 +46,17 @@ class NoticeController(
         noticeService.deleteNotice(request.loginId, request.noticeId)
     }
 
+    //게시물 검색(제목)
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/notice/search")
-    fun searchNotice(@RequestParam page: Int, @RequestParam keyword:String):Page<NoticeInfoDto> {
-        return noticeService.searchNotice(page,keyword)
+    @GetMapping("/notice/search-by-title")
+    fun searchNoticeByTitle(@RequestParam page: Int, @RequestParam keyword:String):Page<NoticeInfoDto> {
+        return noticeService.searchNoticeByTitle(page,keyword)
+    }
+
+    //게시물 검색(내용)
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @GetMapping("/notice/search-by-content")
+    fun searchNoticeByContent(@RequestParam page: Int, @RequestParam keyword:String):Page<NoticeInfoDto> {
+        return noticeService.searchNoticeByContent(page,keyword)
     }
 }

@@ -33,6 +33,17 @@ class QAController(
     {
         return qaService.searchQaByTitle(page,keyword)
     }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @GetMapping("/qa/search-by-content")
+    fun searchQAByContent(
+        @RequestParam page:Int,
+        @RequestParam keyword:String
+    ): Page<QAInfoDto>?
+    {
+        return qaService.searchQaByContent(page,keyword)
+    }
+
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/qa/search-by-writer")
     fun searchQAByWriter(

@@ -7,4 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface NoticeRepository : JpaRepository<NoticeEntity, Long> {
     fun findByUser(userId : UserEntity): List<NoticeEntity>
     fun findByNoticeTitleContaining(keyword: String, pageable: Pageable): Page<NoticeEntity>
+    fun findByNoticeContentContaining(keyword: String, pageable: Pageable): Page<NoticeEntity>
 }

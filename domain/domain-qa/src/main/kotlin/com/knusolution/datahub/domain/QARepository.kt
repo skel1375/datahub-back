@@ -10,4 +10,5 @@ interface QARepository: JpaRepository<QAEntity,Long> {
 
     fun findByQaTitleContaining(keyword: String, pageable: Pageable) : Page<QAEntity>
     fun findByUserUserId(userId: Long, pageable: Pageable): Page<QAEntity>
+    fun findByQaContentContaining(keyword: String, pageable: Pageable): Page<QAEntity>
 }
