@@ -19,7 +19,7 @@ class NoticeService(
 
     //공지사항 불러오기 (페이지)
     fun getNotice(page:Int): Page<NoticeInfoDto> {
-        val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId"))
+        val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId").descending())
         return noticeRepository.findAll(pageable).map{it.asInfoDto()}
     }
 
