@@ -17,18 +17,20 @@ class NoticeService(
 ) {
     val pageSize = 10
 
+    //공지사항 불러오기 (페이지)
     fun getNotice(page:Int): Page<NoticeInfoDto> {
         val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId"))
         return noticeRepository.findAll(pageable).map{it.asInfoDto()}
     }
 
-    //모달 띄울 때 정보 요청, 필요 시 사용
+    //자세한 내용 불러오기, 모달 띄울 때 정보 요청
     @Transactional(readOnly = true)
     fun getNoticeData(noticeId: Long): NoticeModalResponse? {
         val notice = findNoticeById(noticeId)
         return NoticeModalResponse(notice.noticeTitle,notice.noticeContent)
     }
 
+    //작성한 공지사항 DB 저장
     @Transactional
     fun saveNotice(loginId: String, noticeTitle: String, noticeContent: String) {
         val user = findUserByLoginId(loginId)
@@ -40,6 +42,7 @@ class NoticeService(
         noticeRepository.save(notice)
     }
 
+    //공지사항 수정
     @Transactional
     fun updateNotice(loginId: String, noticeId: Long, noticeTitle: String, noticeContent: String){
         val notice = findNoticeById(noticeId)
@@ -53,6 +56,7 @@ class NoticeService(
         notice.noticeContent = noticeContent
     }
 
+    //공지사항 삭제
     @Transactional
     fun deleteNotice(loginId: String,noticeId: Long){
         val user = findUserByLoginId(loginId)
@@ -63,22 +67,26 @@ class NoticeService(
         noticeRepository.deleteById(noticeId)
     }
 
+    //공지사항 제목으로 검색
     fun searchNoticeByTitle(page: Int, keyword: String): Page<NoticeInfoDto> {
         val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId"))
         return noticeRepository.findByNoticeTitleContaining(keyword,pageable).map { it.asInfoDto() }
     }
 
+    //공지사항 내용으로 검색
     fun searchNoticeByContent(page: Int, keyword: String): Page<NoticeInfoDto> {
         val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId"))
         return noticeRepository.findByNoticeContentContaining(keyword,pageable).map { it.asInfoDto() }
     }
 
+    //로그인 아이디로 유저 검색, 없으면 예외처리
     fun findUserByLoginId(loginId: String): UserEntity?{
         val user = userRepository.findByLoginId(loginId)
                 ?: throw NoSuchElementException("Invalid loginId : $loginId 존재하지 않는 아이디입니다.")
         return user
     }
 
+    //공지사항 id로 공지 검색, 없으면 예외처리
     fun findNoticeById(noticeId: Long): NoticeEntity{
         val notice = noticeRepository.findById(noticeId).orElseThrow {
             NoSuchElementException("Invalid noticeId : $noticeId 존재하지 않는 게시글입니다.")

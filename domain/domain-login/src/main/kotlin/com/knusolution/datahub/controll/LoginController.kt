@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest
 class LoginController(
     private val loginService: LoginService
 ){
+    //시스템 등록 (유저 등록)
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/join/user")
     fun registerUser(@RequestBody req: JoinRequest) = loginService.registerUser(req)
@@ -18,16 +19,19 @@ class LoginController(
     @PostMapping("/users")
     fun loginUser(@RequestBody req: LoginRequest) = loginService.loginUser(req)
 
+    //로그인 Id 중복 검사
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/join/check-loginid")
     fun checkLoginId(@RequestParam loginId: String ) : ResponseEntity<Boolean> {
         return ResponseEntity.ok(loginService.checkLoginId(loginId))
     }
+    //시스템 등록 시 시스템 이름 중복 검사
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/join/check-systemname")
     fun checkSystemName(@RequestParam systemName: String ) : ResponseEntity<Boolean> {
         return ResponseEntity.ok(loginService.checkSystemNameOnJoin(systemName))
     }
+    //정보 수정 시 시스템 이름 중복 거사
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/users/check-systemname")
     fun checkSystemName(@RequestBody req: CheckSystemNameRequest) : ResponseEntity<Boolean> {
@@ -46,6 +50,7 @@ class LoginController(
         loginService.delUserSystem(systemId)
     }
     
+    //로그아웃
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/logout/user")
     fun logoutUser(request: HttpServletRequest, @RequestBody req: LogoutRequest){

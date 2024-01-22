@@ -52,6 +52,8 @@ class LoginService(
             }
         }
     }
+
+    //로그인 기능, 토큰을 발급 받는다.
     fun loginUser(req: LoginRequest): LoginResponse?
     {
         val userEntity = userRepository.findByLoginId(req.loginId) ?: throw(IllegalArgumentException("존재하지 않는 ID입니다."))
@@ -67,12 +69,12 @@ class LoginService(
         val refreshToken = tokenProvider.createRefreshToken()
         val existingEntity = userRefreshTokenRepository.findByIdOrNull(userEntity.userId)
         if (existingEntity != null) {
-            // 이미 해당 엔티티가 존재하면 업데이트
+            // 이미 리프레시 토큰이 존재하면 업데이트
             existingEntity.updateRefreshToken(refreshToken)
             existingEntity.updateRefreshToken(refreshToken)
             userRefreshTokenRepository.save(existingEntity)
         } else {
-            // 해당 엔티티가 존재하지 않으면 새로 생성하여 저장
+            // 리프레시 토큰이 존재하지 않으면 새로 생성하여 저장
             userRefreshTokenRepository.save(UserRefreshTokenEntity(userEntity, refreshToken))
         }
         return userDto.asLoginResponse(token,refreshToken)
@@ -80,9 +82,11 @@ class LoginService(
 
     //아이디 중복, 시스템 이름 중복 검사
     fun checkDuplicate(loginId: String, systemName: String) = checkLoginId(loginId) && checkSystemNameOnJoin(systemName)
+    //아이디 중복 검사
     fun checkLoginId(loginId: String) = !userRepository.existsByLoginId(loginId)
+    //시스템 등록시 시스템 이름 중복 검사
     fun checkSystemNameOnJoin(systemName: String) = !systemRepository.existsBySystemName(systemName)
-    //회원정보 수정 시 현재 정보와 같아도 중복 허용
+    //정보 수정 시 시스템 이름 중복 검사, 현재 정보와 같아도 중복 허용하기 위하여 따로 설정
     fun checkSystemNameOnUpdate(loginId: String, systemName: String) :Boolean {
         val user = userRepository.findByLoginId(loginId) ?: throw NoSuchElementException("유저를 찾을 수 없습니다.")
         val curSystemName = userSystemRepository.findByUser(user).first().system.systemName
@@ -128,18 +132,19 @@ class LoginService(
         }
     }
 
-    @Transactional
     //로그아웃한 유저의 토큰을 블랙리스트에 추가
+    @Transactional
     fun logoutUser(token: String, loginId: String){
         userRefreshTokenRepository.deleteById(userRepository.findByLoginId(loginId)!!.userId)
         try {
             val expireDate = tokenProvider.getExpireDate(token)
             blackListRepository.save(BlackListEntity(token,expireDate))
-            blackListRepository.deleteAllByExpireDateBefore(Date())
+            blackListRepository.deleteAllByExpireDateBefore(Date()) // 유효기간 만료된 토큰은 더이상 필요없으므로 블랙리스트에서 삭제
         } catch (e:ExpiredJwtException) {
             ResponseEntity.status(HttpStatus.OK).body("이미 만료된 토큰입니다.")
         }
     }
+
     fun getUserInfor(systemId: Long): InfoResponse
     {
         val userSystems = userSystemRepository.findBySystemSystemId(systemId)

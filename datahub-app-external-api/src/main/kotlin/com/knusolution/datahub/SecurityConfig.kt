@@ -33,7 +33,7 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }	// 세션을 사용하지 않으므로 STATELESS 설정
             .addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter::class.java)
-            .cors().and()
+            .cors().and() //cors 설정을 위함, Security를 요청이 시큐리티를 통과하지 못하면 CORS 처리가 제대로 안될 수 있음
             .exceptionHandling { it.authenticationEntryPoint(entryPoint) }
             .build()!!
     @Bean
