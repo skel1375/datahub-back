@@ -63,10 +63,9 @@ class PostController(
         @RequestParam approval : String,
         @RequestParam(required = false) declineDetail :String?,
         @RequestPart(required = false) file : MultipartFile?,
-        @RequestParam isFileChange : Boolean
     )
     {
-        postService.updateArticle(articleId, approval, declineDetail, file, isFileChange)
+        postService.updateArticle(articleId, approval, declineDetail, file)
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")

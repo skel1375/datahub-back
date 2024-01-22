@@ -85,13 +85,15 @@ class PostService(
         articleRepository.save(article)
     }
 
-    fun updateArticle(articleId:Long,approval: String,declineDetail: String?,file: MultipartFile?,isFileChange: Boolean)
+    fun updateArticle(articleId:Long,approval: String,declineDetail: String?,file: MultipartFile?)
     {
         val article = articleRepository.findByArticleId(articleId)
-        if(article.approval == "승인")
-        {
-            if(approval == "반려")
+        if(article.approval == "승인") {
+            if (approval == "반려") {
+                if (file == null)
+                    throw IllegalArgumentException("File cannot be null for article rejection.")
                 postDeclineFile(articleId, approval, declineDetail, file)
+            }
         }
         else
         {
@@ -106,15 +108,13 @@ class PostService(
             }
             else
             {
-                if(isFileChange)
+                if(file != null)
                 {
                     delFile(article.declineFileUrl)
                     postDeclineFile(articleId, approval, declineDetail, file)
                 }
-                else{
-                    if (declineDetail != null) {
-                        article.declineDetail = declineDetail
-                    }
+                else if(declineDetail != null) {
+                    article.declineDetail = declineDetail
                     articleRepository.save(article)
                 }
             }
