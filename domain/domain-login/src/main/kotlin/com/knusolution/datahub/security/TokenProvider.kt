@@ -28,6 +28,7 @@ class TokenProvider (
 ) {
     private val reissueLimit = refreshExpirationHours * 60 / accessExpirationMinutes
     private  val objectMapper = ObjectMapper() // JWT 역직렬화를 위함
+
     fun createToken(userSpecification: String) = Jwts.builder()
         .signWith(SecretKeySpec(secretKey.toByteArray(), SignatureAlgorithm.HS512.jcaName)) // HS512 알고리즘을 사용하여 secretKey를 이용해 서명
         .setSubject(userSpecification)   // JWT 토큰 제목
@@ -35,6 +36,7 @@ class TokenProvider (
         .setIssuedAt(Timestamp.valueOf(LocalDateTime.now()))    // JWT 토큰 발급 시간
         .setExpiration(Date.from(Instant.now().plus(accessExpirationMinutes, ChronoUnit.MINUTES)))    // JWT 토큰의 만료시간 설정
         .compact()!!    // JWT 토큰 생성
+
     fun createRefreshToken() = Jwts.builder()
         .signWith(SecretKeySpec(secretKey.toByteArray(),SignatureAlgorithm.HS512.jcaName))
         .setIssuer(issuer)
@@ -49,15 +51,19 @@ class TokenProvider (
             ?.increaseReissueCount() ?: throw ExpiredJwtException(null, null, "Refresh token이 만료되었습니다.")
         return createToken(subject)
     }
+
+    //리프레시 토큰 유효성 검사 (DB와 검사)
     @Transactional(readOnly = true)
     fun validateRefreshToken(refreshToken: String, oldAccessToken: String) {
         validateToken(refreshToken)
+        //페이로드가 userId:권한 으로 구성되어 있음, userId는 [0]
         val userID = decodeJwtPayloadSubject(oldAccessToken).split(':')[0].toLong()
         userRefreshTokenRepository.findByUserIdAndReissueCountLessThan(userID,reissueLimit)
-            ?.takeIf { it.validateRefreshToken(refreshToken) } ?: throw ExpiredJwtException(null,null,"Refresh token이 만료되었습니다.")
+            ?.takeIf { it.validateRefreshToken(refreshToken) }
+            ?: throw ExpiredJwtException(null,null,"Refresh token이 만료되었습니다.")
     }
 
-    //Token : header.payload.signature이므로 [1]은 payload
+    //Token : header.payload.signature 순이므로 [1]은 payload
     private fun decodeJwtPayloadSubject(oldAccessToken: String): String {
         val json = Base64.getUrlDecoder().decode(oldAccessToken.split('.')[1]).decodeToString()
         val mapType = object : TypeReference<Map<String, Any>>() {}
@@ -68,6 +74,8 @@ class TokenProvider (
 
     fun validateToken(token: String) =
         Jwts.parserBuilder().setSigningKey(secretKey.toByteArray()).build().parseClaimsJws(token)!!
+
     fun getSubject(token: String) = validateToken(token).body.subject!!
+
     fun getExpireDate(token: String): Date = validateToken(token).body.expiration
 }

@@ -25,33 +25,25 @@ class QAController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/qa/search-by-title")
-    fun searchQAByTitle(
+    @GetMapping("/qa/search")
+    fun searchQA(
         @RequestParam page:Int,
-        @RequestParam keyword:String
+        @RequestParam keyword:String,
+        @RequestParam searchBy:String
     ): Page<QAInfoDto>?
     {
-        return qaService.searchQaByTitle(page,keyword)
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/qa/search-by-content")
-    fun searchQAByContent(
-        @RequestParam page:Int,
-        @RequestParam keyword:String
-    ): Page<QAInfoDto>?
-    {
-        return qaService.searchQaByContent(page,keyword)
-    }
-
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/qa/search-by-writer")
-    fun searchQAByWriter(
-        @RequestParam page:Int,
-        @RequestParam loginId:String
-    ): Page<QAInfoDto>?
-    {
-        return qaService.searchQaByWriter(page,loginId)
+        when (searchBy) {
+            "title" -> {
+                return qaService.searchQaByTitle(page,keyword)
+            }
+            "content" -> {
+                return qaService.searchQaByContent(page,keyword)
+            }
+            "loginId" -> {
+                return qaService.searchQaByWriter(page, keyword)
+            }
+        }
+        throw IllegalArgumentException("searchBy 값을 다시 확인해주세요.")
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")

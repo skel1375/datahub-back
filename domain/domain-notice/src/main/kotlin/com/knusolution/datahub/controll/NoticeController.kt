@@ -46,17 +46,21 @@ class NoticeController(
         noticeService.deleteNotice(request.loginId, request.noticeId)
     }
 
-    //게시물 검색(제목)
+    //게시물 검색
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/notice/search-by-title")
-    fun searchNoticeByTitle(@RequestParam page: Int, @RequestParam keyword:String):Page<NoticeInfoDto> {
-        return noticeService.searchNoticeByTitle(page,keyword)
-    }
-
-    //게시물 검색(내용)
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/notice/search-by-content")
-    fun searchNoticeByContent(@RequestParam page: Int, @RequestParam keyword:String):Page<NoticeInfoDto> {
-        return noticeService.searchNoticeByContent(page,keyword)
+    @GetMapping("/notice/search")
+    fun searchNotice(
+        @RequestParam page: Int,
+        @RequestParam keyword:String,
+        @RequestParam searchBy:String):Page<NoticeInfoDto> {
+        when(searchBy){
+            "title" -> {
+                return noticeService.searchNoticeByTitle(page,keyword)
+            }
+            "content" -> {
+                return noticeService.searchNoticeByContent(page,keyword)
+            }
+        }
+        throw IllegalArgumentException("SearchBy 값을 다시 확인해주세요.")
     }
 }
