@@ -47,7 +47,7 @@ class QAController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PostMapping("/qa/addition")
+    @PostMapping("/qa/post")
     fun saveQa(
         @RequestParam loginId:String,
         @RequestParam qaTitle:String,
@@ -58,7 +58,7 @@ class QAController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PutMapping("/qa/modi")
+    @PutMapping("/qa/update")
     fun updateQa(
         @RequestParam loginId: String,
         @RequestParam qaId: Long,
@@ -80,7 +80,7 @@ class QAController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/reply")
+    @GetMapping("/qa/content")
     fun getQaContentReply(
         @RequestParam qaId: Long
     ): ReplyResponse
@@ -104,7 +104,7 @@ class QAController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PutMapping("/reply/modi")
+    @PutMapping("/reply/update")
     fun updateReply(
         @RequestParam loginId: String,
         @RequestParam replyId:Long,
@@ -125,7 +125,7 @@ class QAController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @DeleteMapping("/qa-reply/del-all")
+    @DeleteMapping("/qa/clear")
     fun delAllQaReply(@RequestParam systemId:Long)
     {
         qaService.delAllQaReply(systemId)

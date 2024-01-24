@@ -13,14 +13,14 @@ class PostController(
     private val postService : PostService
 ){
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/wait-article")
+    @GetMapping("/article/wait")
     fun waitArticles(@RequestParam page:Int): Page<WaitArticleDto>
     {
         return postService.getWaitArticles(page)
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/articles")
+    @GetMapping("/article")
     fun getArticles(
         @RequestParam detailCategoryId: Long,
         @RequestParam page: Int
@@ -30,7 +30,7 @@ class PostController(
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PostMapping("/article-file")
+    @PostMapping("/article/task")
     fun postArticle(
         @RequestParam detailCategoryId : Long,
         @RequestPart file : MultipartFile
@@ -39,7 +39,7 @@ class PostController(
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PutMapping("/article-review")
+    @PutMapping("/article/decline")
     fun postDeclineFile(
         @RequestParam articleId : Long,
         @RequestParam approval : String,
@@ -50,7 +50,7 @@ class PostController(
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("/article/del-all")
+    @DeleteMapping("/article/clear")
     fun delAllArticle(
         @RequestParam systemId:Long)
     {

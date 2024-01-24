@@ -12,7 +12,7 @@ class NoticeController(
 ) {
     //페이지네이션
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/notices")
+    @GetMapping("/notice")
     fun getNotice(@RequestParam page:Int) : Page<NoticeInfoDto>
     {
         return noticeService.getNotice(page)
@@ -20,7 +20,7 @@ class NoticeController(
 
     //게시물 조회
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/notice")
+    @GetMapping("/notice/content")
     fun getNotice(@RequestParam noticeId: Long): NoticeModalResponse? {
         return noticeService.getNoticeData(noticeId)
     }
