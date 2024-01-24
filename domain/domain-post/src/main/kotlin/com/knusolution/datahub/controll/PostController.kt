@@ -70,7 +70,7 @@ class PostController(
 
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("/article/del")
-    fun delWaitArticle(
+    fun delArticle(
         @RequestParam articleId: Long
     )
     {

@@ -31,6 +31,7 @@ class PostService(
 ){
     val pageSize=10
 
+    //대기중 게시물
     fun getWaitArticles(page : Int) : Page<WaitArticleDto>
     {
         val approval = "대기"

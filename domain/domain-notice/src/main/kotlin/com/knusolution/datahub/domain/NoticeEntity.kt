@@ -23,8 +23,7 @@ data class NoticeEntity(
         var noticeDate: String,
 
         @NotNull
-        @Lob
-        @Column
+        @Column(columnDefinition = "TEXT")
         var noticeContent: String
 )
 
