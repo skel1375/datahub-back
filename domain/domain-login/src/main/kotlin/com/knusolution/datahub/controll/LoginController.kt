@@ -16,7 +16,7 @@ class LoginController(
     @PostMapping("/join")
     fun registerUser(@RequestBody req: JoinRequest) = loginService.registerUser(req)
 
-    @PostMapping("/login")
+    @PostMapping("/login/user")
     fun loginUser(@RequestBody req: LoginRequest) = loginService.loginUser(req)
 
     //로그인 Id 중복 검사
@@ -52,14 +52,14 @@ class LoginController(
     
     //로그아웃
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PostMapping("/logout")
+    @PostMapping("/logout/user")
     fun logoutUser(request: HttpServletRequest, @RequestBody req: LogoutRequest){
         val authorizationHeader = request.getHeader("Authorization") ?: throw RuntimeException("No Authorization header")
         val token = authorizationHeader.removePrefix("Bearer ").trim()
         return loginService.logoutUser(token,req.loginId)
     }
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/user/update/Info")
+    @PostMapping("/user/Info")
     fun getUserInfo(@RequestParam systemId: Long): InfoResponse
     {
         return loginService.getUserInfor(systemId)
