@@ -27,6 +27,7 @@ class LoginService(
     private val userSystemRepository: UserSystemRepository,
     private val userRefreshTokenRepository: UserRefreshTokenRepository
 ){
+    //유저와 시스템정보를 받아 시스템등록과 유저 등록
     fun registerUser(req: JoinRequest):Boolean{
         if(checkDuplicate(req.loginId,req.systemName)){
             val system = systemRepository.save(req.asSystemDto().asEntity())
@@ -42,6 +43,7 @@ class LoginService(
         }
         return false
     }
+    //시스템등록시 하위 시스템 등록
     private fun registerCategory(system: SystemEntity)
     {
         getBaseCategory().forEach {
@@ -92,7 +94,7 @@ class LoginService(
         val curSystemName = userSystemRepository.findByUser(user).first().system.systemName
         return !systemRepository.existsBySystemName(systemName) || curSystemName == systemName
     }
-
+    //유저 정보 수정
     fun updateUser(req:UpdateRequest):Boolean {
         if (checkSystemNameOnUpdate(req.loginId,req.systemName)) {
             val userEntity = userRepository.findByLoginId(req.loginId)
@@ -105,6 +107,7 @@ class LoginService(
         }
         return false
     }
+    //시스템정보수정
     fun updateDBSystem(userEntity: UserEntity,req:UpdateRequest)
     {
         val userSystems = userSystemRepository.findByUser(userEntity)
@@ -112,7 +115,7 @@ class LoginService(
         system.systemName = req.systemName
         systemRepository.save(system)
     }
-
+    //유저와 시스템정보 삭제
     fun delUserSystem(systemId:Long)
     {
         val system =systemRepository.findBySystemId(systemId)
@@ -144,7 +147,7 @@ class LoginService(
             ResponseEntity.status(HttpStatus.OK).body("이미 만료된 토큰입니다.")
         }
     }
-
+    //시스템과 연결된 유저정보전달
     fun getUserInfor(systemId: Long): InfoResponse
     {
         val userSystems = userSystemRepository.findBySystemSystemId(systemId)

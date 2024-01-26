@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 class NoticeController(
         private val noticeService: NoticeService
 ) {
-    //페이지네이션
+    //공지사항 리스트 전달
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notice")
     fun getNotice(@RequestParam page:Int) : Page<NoticeInfoDto>
@@ -18,14 +18,14 @@ class NoticeController(
         return noticeService.getNotice(page)
     }
 
-    //게시물 조회
+    //공지사항 조회
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notice/content")
     fun getNotice(@RequestParam noticeId: Long): NoticeModalResponse? {
         return noticeService.getNoticeData(noticeId)
     }
 
-    //게시물 작성
+    //공지사항 작성
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/notice/post")
     fun saveNotice(@RequestBody request: SaveNoticeRequest) {
@@ -39,14 +39,14 @@ class NoticeController(
         noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent)
     }
 
-    //게시물 삭제
+    //공지사항 삭제
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/notice/delete")
     fun deleteNotice(@RequestBody request: DeleteNoticeRequest) {
         noticeService.deleteNotice(request.loginId, request.noticeId)
     }
 
-    //게시물 검색
+    //공지사항 검색
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notice/search")
     fun searchNotice(

@@ -12,13 +12,14 @@ import org.springframework.web.multipart.MultipartFile
 class PostController(
     private val postService : PostService
 ){
+    //대기중게시물
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/article/wait")
     fun waitArticles(@RequestParam page:Int): Page<WaitArticleDto>
     {
         return postService.getWaitArticles(page)
     }
-
+    //세부카테고리의 게시물
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/article")
     fun getArticles(
@@ -28,7 +29,7 @@ class PostController(
     {
         return postService.getArticles(detailCategoryId,page)
     }
-
+    //게시글 추가
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/article/task")
     fun postArticle(
@@ -37,7 +38,7 @@ class PostController(
     ){
         postService.saveArticle(detailCategoryId, file)
     }
-
+    //게시글의 승인여부와 관련파일 추가
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/article/decline")
     fun postDeclineFile(
@@ -48,7 +49,7 @@ class PostController(
     ){
         postService.postDeclineFile(articleId, approval, declineDetail, file)
     }
-
+    //시스템과 관련된 모든 게시물삭제
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/article/clear")
     fun delAllArticle(
@@ -56,6 +57,7 @@ class PostController(
     {
         postService.delAllArticle(systemId)
     }
+    //게시글 수정
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/article/update")
     fun updateArticle(
@@ -67,7 +69,7 @@ class PostController(
     {
         postService.updateArticle(articleId, approval, declineDetail, file)
     }
-
+    //게시글 삭제
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("/article/del")
     fun delArticle(

@@ -17,32 +17,31 @@ class QAService(
     private val userSystemRepository: UserSystemRepository,
 ){
     val pageSize = 10
-
+    //Qa 리스트 전달
     fun getQa(page:Int): Page<QAInfoDto>
     {
         val pageable = PageRequest.of(page-1,pageSize, Sort.by("QaId").descending())
         return qaRepository.findAll(pageable).map{it.asInfoDto()}
     }
-
+    //QA 제목으로 검색
     fun searchQaByTitle(page: Int, keyword:String):Page<QAInfoDto>?
     {
         val pageable = PageRequest.of(page-1,pageSize,Sort.by("QaId").descending())
         return qaRepository.findByQaTitleContaining(keyword,pageable).map { it.asInfoDto() }
     }
-
+    //QA내용으로 검색
     fun searchQaByContent(page: Int, keyword:String):Page<QAInfoDto>?
     {
         val pageable = PageRequest.of(page-1,pageSize,Sort.by("QaId").descending())
         return qaRepository.findByQaContentContaining(keyword,pageable).map { it.asInfoDto() }
     }
-
+    //QA작성자로 검색
     fun searchQaByWriter(page:Int, keyword: String):Page<QAInfoDto>?
     {
         val pageable = PageRequest.of(page-1,pageSize,Sort.by("QaId").descending())
         return qaRepository.findByUserLoginIdContaining(keyword,pageable).map { it.asInfoDto() }
     }
-
-
+    //QA작성
     fun saveQa(loginId : String, qaTitle: String, qaContent: String)
     {
         val user = userRepository.findByLoginId(loginId)
@@ -53,8 +52,7 @@ class QAService(
             qaRepository.save(qa.asEntity())
         }
     }
-
-
+    //QA수정
     fun updateQa(loginId: String,qaId: Long,updateTitle:String,updateContent:String): Boolean
     {
         val user = userRepository.findByLoginId(loginId)
@@ -72,7 +70,7 @@ class QAService(
         }
         return false
     }
-
+    //QA삭제
     fun delQa(loginId: String,qaId: Long):Boolean
     {
         val user = userRepository.findByLoginId(loginId)
@@ -94,14 +92,14 @@ class QAService(
         val qa = qaRepository.findByQaId(qaId)
         return qa
     }
-
+    //QA에 해당하는 답글 리스트
     fun getReply(qaId: Long) : List<ReplyInfoDto>
     {
         val qa=getQabyId(qaId)
         val replys=replyRepository.findByQa(qa)
         return replys.map{it.asInfoDto()}
     }
-
+    //답글 저장
     fun saveReply(loginId: String, qaId: Long ,replyContent:String)
     {
         val user = userRepository.findByLoginId(loginId)
@@ -113,7 +111,7 @@ class QAService(
             replyRepository.save(reply.asEntity())
         }
     }
-
+    //답글수정
     fun updateReply(loginId: String,replyId: Long,updateContent: String):Boolean
     {
         val user = userRepository.findByLoginId(loginId)
@@ -130,7 +128,7 @@ class QAService(
         }
         return false
     }
-
+    //답글삭제
     fun delReply(loginId: String,replyId :Long):Boolean
     {
         val user = userRepository.findByLoginId(loginId)
@@ -144,7 +142,7 @@ class QAService(
         }
         return false
     }
-
+    //system과user에 연결된 모든 답글과 QA삭제
     fun delAllQaReply(systemId: Long)
     {
         val userSystems= userSystemRepository.findBySystemSystemId(systemId)
