@@ -26,7 +26,7 @@ class SecurityConfig(private val jwtAuthenticationFilter: JwtAuthenticationFilte
                         AntPathRequestMatcher("/"),
                         AntPathRequestMatcher("/swagger-ui/**"),
                         AntPathRequestMatcher("/v3/**"),
-                        AntPathRequestMatcher("/users")
+                        AntPathRequestMatcher("/login/user")
                 ).permitAll()	// requestMatchers의 인자로 전달된 url은 모두에게 허용
                         .requestMatchers(PathRequest.toH2Console()).permitAll()	// H2 콘솔 접속은 모두에게 허용
                         .anyRequest().authenticated()	// 그 외의 모든 요청은 인증 필요

@@ -43,7 +43,7 @@ class PostService(
             it.asWaitDto(systemName,detailCategoryName)
         }
     }
-
+    //세부카테고리의 게시물
     fun getArticles(detailCategoryId: Long,page: Int):Page<ArticleInfoDto>
     {
         val detailCategory = detailCategoryRepository.findByDetailCategoryId(detailCategoryId)
@@ -51,6 +51,7 @@ class PostService(
 
         return articleRepository.findAllByDetailCategory(detailCategory,pageable).map { it.asInfoDto() }
     }
+    //게시물 저장
     fun saveArticle( detailCategoryId : Long , file : MultipartFile){
         val existingDetailCategory = detailCategoryRepository.findById(detailCategoryId)
         val detailCategory = existingDetailCategory.get()
@@ -66,6 +67,7 @@ class PostService(
         val article = ArticleDto( datetime , "대기" ,"",fileUrl,originalFileName ?: detailCategory.detailCategoryName ,"","",detailCategory)
         articleRepository.save(article.asEntity())
     }
+    //게시물 승인여부와 관련파일 저장
     fun postDeclineFile(articleId : Long , approval : String , declineDetail : String? , file : MultipartFile?){
         val article = articleRepository.findByArticleId(articleId)
         article.approval = approval
@@ -85,7 +87,7 @@ class PostService(
         }
         articleRepository.save(article)
     }
-
+    //게시물 수정
     fun updateArticle(articleId:Long,approval: String,declineDetail: String?,file: MultipartFile?)
     {
         val article = articleRepository.findByArticleId(articleId)
@@ -122,6 +124,7 @@ class PostService(
         }
 
     }
+    //게시물 삭제
     fun delArticle(articleId : Long)
     {
         val article = articleRepository.findByArticleId(articleId)
@@ -132,7 +135,7 @@ class PostService(
         }
         articleRepository.delete(article)
     }
-
+    //시스템과 연관된 모든 게시물 삭제
     fun delAllArticle(systemId:Long)
     {
         val system = systemRepository.findBySystemId(systemId)
@@ -153,11 +156,7 @@ class PostService(
                 baseCategoryRepository.delete(baseCategory)
             }
     }
-
-    private fun getSaveFileName(originalFilename: String?): String {
-        return UUID.randomUUID().toString() + "-" + originalFilename
-    }
-
+    //S3에서 파일 삭제
     private fun delFile(fileUrl:String)
     {
         val splitStr = ".com/"
@@ -165,5 +164,10 @@ class PostService(
         val decodeTaskFile = URLDecoder.decode(fileName,"UTF-8")
         amazonS3.deleteObject(bucket, decodeTaskFile)
     }
+
+    private fun getSaveFileName(originalFilename: String?): String {
+        return UUID.randomUUID().toString() + "-" + originalFilename
+    }
+
 
 }

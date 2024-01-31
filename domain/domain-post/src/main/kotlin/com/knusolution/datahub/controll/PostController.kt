@@ -12,15 +12,16 @@ import org.springframework.web.multipart.MultipartFile
 class PostController(
     private val postService : PostService
 ){
+    //대기중게시물
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping("/wait-article")
+    @GetMapping("/article/wait")
     fun waitArticles(@RequestParam page:Int): Page<WaitArticleDto>
     {
         return postService.getWaitArticles(page)
     }
-
+    //세부카테고리의 게시물
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @GetMapping("/articles")
+    @GetMapping("/article")
     fun getArticles(
         @RequestParam detailCategoryId: Long,
         @RequestParam page: Int
@@ -28,18 +29,18 @@ class PostController(
     {
         return postService.getArticles(detailCategoryId,page)
     }
-
+    //게시글 추가
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
-    @PostMapping("/article-file")
+    @PostMapping("/article/task")
     fun postArticle(
         @RequestParam detailCategoryId : Long,
         @RequestPart file : MultipartFile
     ){
         postService.saveArticle(detailCategoryId, file)
     }
-
+    //게시글의 승인여부와 관련파일 추가
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PutMapping("/article-review")
+    @PutMapping("/article/decline")
     fun postDeclineFile(
         @RequestParam articleId : Long,
         @RequestParam approval : String,
@@ -48,14 +49,15 @@ class PostController(
     ){
         postService.postDeclineFile(articleId, approval, declineDetail, file)
     }
-
+    //시스템과 관련된 모든 게시물삭제
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("/article/del-all")
+    @DeleteMapping("/article/clear")
     fun delAllArticle(
         @RequestParam systemId:Long)
     {
         postService.delAllArticle(systemId)
     }
+    //게시글 수정
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/article/update")
     fun updateArticle(
@@ -67,7 +69,7 @@ class PostController(
     {
         postService.updateArticle(articleId, approval, declineDetail, file)
     }
-
+    //게시글 삭제
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @DeleteMapping("/article/del")
     fun delArticle(

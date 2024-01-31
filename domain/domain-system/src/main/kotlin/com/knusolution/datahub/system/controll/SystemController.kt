@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class SystemController(
     private val systemService: SystemService,
 ) {
+    //기본카테고리 정보 전달
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/base-category")
     fun getBaseCategory(@RequestParam systemId:Long): BaseCategoryResponse?
@@ -20,7 +21,7 @@ class SystemController(
         val baseCategories = systemService.getBaseCategories(systemId).map{it.asDto()}
         return BaseCategoryResponse(systemName = system.systemName, baseCategories = baseCategories)
     }
-
+    //세부카테고리 정보 전달
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/detail-category")
     fun getDetailCategory(@RequestParam baseCategoryId:Long): DetailCategoryResponse?
@@ -29,7 +30,7 @@ class SystemController(
         val detailCategories = systemService.getDetailCategories(id = baseCategoryId).map{it.asDto()}
         return DetailCategoryResponse(detailCategories = detailCategories)
     }
-
+    //시스템리스트 전달
     @GetMapping("/system")
     fun getSystemList():SystemResponse{
         val systems = systemService.getAllSystem().map { it.asSystemInfo() }
