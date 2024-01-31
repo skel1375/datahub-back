@@ -29,7 +29,7 @@ class PostService(
     private val bucket: String,
     private val amazonS3: AmazonS3
 ){
-    val pageSize=10
+    val pageSize=3
 
     //대기중 게시물
     fun getWaitArticles(page : Int) : Page<WaitArticleDto>

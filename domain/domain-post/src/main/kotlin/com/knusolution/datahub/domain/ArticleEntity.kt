@@ -27,14 +27,14 @@ data class ArticleEntity(
     var declineDetail : String,
 
     @NotNull
-    @Column
+    @Column(length = 500)
     val taskFileUrl : String,
 
     @NotNull
     @Column
     val taskFileName : String,
 
-    @Column
+    @Column(length = 500)
     var declineFileUrl : String,
 
     @Column

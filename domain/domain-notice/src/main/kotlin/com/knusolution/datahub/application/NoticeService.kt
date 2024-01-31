@@ -69,13 +69,13 @@ class NoticeService(
 
     //공지사항 제목으로 검색
     fun searchNoticeByTitle(page: Int, keyword: String): Page<NoticeInfoDto> {
-        val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId"))
+        val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId").descending())
         return noticeRepository.findByNoticeTitleContaining(keyword,pageable).map { it.asInfoDto() }
     }
 
     //공지사항 내용으로 검색
     fun searchNoticeByContent(page: Int, keyword: String): Page<NoticeInfoDto> {
-        val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId"))
+        val pageable = PageRequest.of(page-1,pageSize, Sort.by("noticeId").descending())
         return noticeRepository.findByNoticeContentContaining(keyword,pageable).map { it.asInfoDto() }
     }
 
