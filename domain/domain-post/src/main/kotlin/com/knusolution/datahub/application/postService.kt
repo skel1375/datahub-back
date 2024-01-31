@@ -30,12 +30,13 @@ class PostService(
     private val amazonS3: AmazonS3
 ){
     val pageSize=3
+    val postPageSize = 10
 
     //대기중 게시물
     fun getWaitArticles(page : Int) : Page<WaitArticleDto>
     {
         val approval = "대기"
-        val pageable = PageRequest.of(page-1,pageSize, Sort.by("articleId").descending())
+        val pageable = PageRequest.of(page-1,postPageSize, Sort.by("articleId").descending())
         articleRepository.findAll(pageable)
         return articleRepository.findAllByApproval(approval,pageable).map{
             val detailCategoryName = it.detailCategory.detailCategoryName
