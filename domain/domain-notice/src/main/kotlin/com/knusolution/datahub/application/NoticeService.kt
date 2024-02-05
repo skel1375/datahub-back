@@ -54,7 +54,6 @@ class NoticeService(
         noticeRepository.save(notice)
         if(files != null)
         {
-            notice = noticeRepository.findByUser(user)
             files.forEach{file->
                 val originalFileName = file.originalFilename
                 val saveFileName = getSaveFileName(originalFileName)
