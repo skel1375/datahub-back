@@ -5,6 +5,7 @@ import com.knusolution.datahub.domain.*
 import org.springframework.data.domain.Page
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 class NoticeController(
@@ -21,22 +22,29 @@ class NoticeController(
     //공지사항 조회
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @GetMapping("/notice/content")
-    fun getNotice(@RequestParam noticeId: Long): NoticeModalResponse? {
+    fun getNotice(@RequestParam noticeId: Long): NoticeContentResponse? {
         return noticeService.getNoticeData(noticeId)
     }
 
     //공지사항 작성
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/notice/post")
-    fun saveNotice(@RequestBody request: SaveNoticeRequest) {
-        noticeService.saveNotice(request.loginId,request.noticeTitle,request.noticeContent)
+    fun saveNotice(
+        @RequestPart request: SaveNoticeRequest,
+        @RequestPart files : List<MultipartFile>?
+    )
+    {
+        noticeService.saveNotice(request.loginId,request.noticeTitle,request.noticeContent,files)
     }
 
     //게시물 수정
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/notice/update")
-    fun updateNotice(@RequestBody request:UpdateNoticeRequest) {
-        noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent)
+    fun updateNotice(
+        @RequestPart request:UpdateNoticeRequest,
+        @RequestPart files: List<MultipartFile>?
+    ) {
+        noticeService.updateNotice(request.loginId,request.noticeId,request.noticeTitle,request.noticeContent,request.delFileIds,files)
     }
 
     //공지사항 삭제
@@ -63,4 +71,5 @@ class NoticeController(
         }
         throw IllegalArgumentException("SearchBy 값을 다시 확인해주세요.")
     }
+
 }
