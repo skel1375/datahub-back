@@ -11,7 +11,7 @@ class WebConfig : WebMvcConfigurer {
                 .allowedOrigins("http://localhost:5173")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .exposedHeaders("new-access-token")
+                .exposedHeaders("new-access-token","Content-Disposition")
                 .allowCredentials(true)
     }
 }
