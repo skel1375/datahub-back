@@ -3,6 +3,7 @@ package com.knusolution.datahub.controll
 import com.knusolution.datahub.application.NoticeService
 import com.knusolution.datahub.domain.*
 import org.springframework.data.domain.Page
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -72,4 +73,13 @@ class NoticeController(
         throw IllegalArgumentException("SearchBy 값을 다시 확인해주세요.")
     }
 
+    //파일 다운로드
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @GetMapping("/notice/file/download")
+    fun noticeFileDownload(
+        @RequestParam fileId : Long
+    ): ResponseEntity<ByteArray>
+    {
+        return noticeService.fileDownload(fileId)
+    }
 }

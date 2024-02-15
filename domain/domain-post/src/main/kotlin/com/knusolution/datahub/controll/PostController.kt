@@ -4,6 +4,7 @@ import com.knusolution.datahub.application.PostService
 import com.knusolution.datahub.domain.ArticleInfoDto
 import com.knusolution.datahub.domain.WaitArticleDto
 import org.springframework.data.domain.Page
+import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -77,6 +78,22 @@ class PostController(
     )
     {
         postService.delArticle(articleId)
+    }
+
+    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @GetMapping("/article/file/download")
+    fun articleFileDownload(
+        @RequestParam articleId: Long,
+        @RequestParam fileType : String
+    ): ResponseEntity<ByteArray>
+    {
+
+        if(fileType == "task")
+            return postService.taskFileDownload(articleId)
+        else if(fileType == "decline")
+            return postService.declineFileDownload(articleId)
+        else
+            throw IllegalArgumentException("fileType입력 오류")
     }
 
 }

@@ -2,6 +2,7 @@ package com.knusolution.datahub.application
 
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.ObjectMetadata
+import com.amazonaws.util.IOUtils
 import com.knusolution.datahub.domain.*
 import com.knusolution.datahub.system.domain.BaseCategoryRepository
 import com.knusolution.datahub.system.domain.DetailCategoryRepository
@@ -10,6 +11,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
@@ -17,6 +22,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.net.URLDecoder
+import java.net.URLEncoder
 
 
 @Service
@@ -157,13 +163,52 @@ class PostService(
                 baseCategoryRepository.delete(baseCategory)
             }
     }
+
+    fun taskFileDownload(articleId: Long) :ResponseEntity<ByteArray>
+    {
+        val article = articleRepository.findByArticleId(articleId)
+        val splitStr = ".com/"
+        val s3FileName = article.taskFileUrl.substring(article.taskFileUrl.lastIndexOf(splitStr) + splitStr.length)
+        val decodeFile = URLDecoder.decode(s3FileName,"UTF-8")
+        val obj = amazonS3.getObject(bucket, decodeFile)
+        val objectInputStream = obj.objectContent
+        val bytes = IOUtils.toByteArray(objectInputStream)
+
+        val fileName = URLEncoder.encode(article.taskFileName, "UTF-8").replace("+", "%20")
+        val httpHeaders = HttpHeaders()
+        httpHeaders.contentType = MediaType.APPLICATION_OCTET_STREAM
+        httpHeaders.contentLength = bytes.size.toLong()
+        httpHeaders.setContentDispositionFormData("attachment", fileName)
+
+        return ResponseEntity(bytes, httpHeaders, HttpStatus.OK)
+    }
+
+    fun declineFileDownload(articleId: Long):ResponseEntity<ByteArray>
+    {
+        val article = articleRepository.findByArticleId(articleId)
+        val splitStr = ".com/"
+        val s3FileName = article.declineFileUrl.substring(article.declineFileUrl.lastIndexOf(splitStr) + splitStr.length)
+        val decodeFile = URLDecoder.decode(s3FileName,"UTF-8")
+        val obj = amazonS3.getObject(bucket, decodeFile)
+        val objectInputStream = obj.objectContent
+        val bytes = IOUtils.toByteArray(objectInputStream)
+
+        val fileName = URLEncoder.encode(article.declineFileName, "UTF-8").replace("+", "%20")
+        val httpHeaders = HttpHeaders()
+        httpHeaders.contentType = MediaType.APPLICATION_OCTET_STREAM
+        httpHeaders.contentLength = bytes.size.toLong()
+        httpHeaders.setContentDispositionFormData("attachment", fileName)
+
+        return ResponseEntity(bytes, httpHeaders, HttpStatus.OK)
+    }
+
     //S3에서 파일 삭제
     private fun delFile(fileUrl:String)
     {
         val splitStr = ".com/"
         val fileName = fileUrl.substring(fileUrl.lastIndexOf(splitStr) + splitStr.length)
-        val decodeTaskFile = URLDecoder.decode(fileName,"UTF-8")
-        amazonS3.deleteObject(bucket, decodeTaskFile)
+        val decodeFile = URLDecoder.decode(fileName,"UTF-8")
+        amazonS3.deleteObject(bucket, decodeFile)
     }
 
     private fun getSaveFileName(originalFilename: String?): String {
