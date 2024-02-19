@@ -32,7 +32,7 @@ class LoginController(
     fun checkSystemName(@RequestParam systemName: String ) : ResponseEntity<Boolean> {
         return ResponseEntity.ok(loginService.checkSystemNameOnJoin(systemName))
     }
-    //정보 수정 시 시스템 이름 중복 거사
+    //정보 수정 시 시스템 이름 중복 검사
     @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
     @PostMapping("/user/update/systemname")
     fun checkSystemName(@RequestBody req: CheckSystemNameRequest) : ResponseEntity<Boolean> {

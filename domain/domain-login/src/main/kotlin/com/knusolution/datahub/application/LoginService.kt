@@ -30,15 +30,18 @@ class LoginService(
     //유저와 시스템정보를 받아 시스템등록과 유저 등록
     fun registerUser(req: JoinRequest):Boolean{
         if(checkDuplicate(req.loginId,req.systemName)){
-            val system = systemRepository.save(req.asSystemDto().asEntity())
+            val parentSystem = systemRepository.findBySystemId(req.parentSystemId)
+            val system = req.asSystemDto().asEntity()
+            system.parentSystem = parentSystem
+
+            systemRepository.save(system)
             val user = req.asUserDto().asEntity(password = req.loginId, encoder)
-            val admin = userRepository.findByRole(Role.ADMIN)
-            val adminSystem = UserSystemDto(user = admin, system = system).asEntity()
             val userSystem = UserSystemDto(user = user, system = system).asEntity()
             userRepository.save(user)
             userSystemRepository.save(userSystem)
-            userSystemRepository.save(adminSystem)
-            registerCategory(system)
+            if(system.isSystem == true)
+                registerCategory(system)
+
             return true
         }
         return false
@@ -60,26 +63,24 @@ class LoginService(
     {
         val userEntity = userRepository.findByLoginId(req.loginId) ?: throw(IllegalArgumentException("존재하지 않는 ID입니다."))
         val userDto = userEntity.let { it ->
-            val userSystems=userSystemRepository.findByUser(it)
-            val systemIds = userSystems.map { userSystem ->
-                userSystem.system.systemId
-            }
-            if(encoder.matches(req.password,it.password)) it.asUserDto(systemIds = systemIds)
+            if(encoder.matches(req.password,it.password)) it.asUserDto()
             else throw(IllegalArgumentException("비밀번호가 일치하지 않습니다."))
         }
+
+        val userSystem = userSystemRepository.findByUser(userEntity)
+
         val token = tokenProvider.createToken("${userEntity.userId}:${userEntity.role}")
         val refreshToken = tokenProvider.createRefreshToken()
         val existingEntity = userRefreshTokenRepository.findByIdOrNull(userEntity.userId)
         if (existingEntity != null) {
             // 이미 리프레시 토큰이 존재하면 업데이트
             existingEntity.updateRefreshToken(refreshToken)
-            existingEntity.updateRefreshToken(refreshToken)
             userRefreshTokenRepository.save(existingEntity)
         } else {
             // 리프레시 토큰이 존재하지 않으면 새로 생성하여 저장
             userRefreshTokenRepository.save(UserRefreshTokenEntity(userEntity, refreshToken))
         }
-        return userDto.asLoginResponse(token,refreshToken)
+        return userDto.asLoginResponse(token,refreshToken,userSystem.system.systemId)
     }
 
     //아이디 중복, 시스템 이름 중복 검사
@@ -91,7 +92,7 @@ class LoginService(
     //정보 수정 시 시스템 이름 중복 검사, 현재 정보와 같아도 중복 허용하기 위하여 따로 설정
     fun checkSystemNameOnUpdate(loginId: String, systemName: String) :Boolean {
         val user = userRepository.findByLoginId(loginId) ?: throw NoSuchElementException("유저를 찾을 수 없습니다.")
-        val curSystemName = userSystemRepository.findByUser(user).first().system.systemName
+        val curSystemName = userSystemRepository.findByUser(user).system.systemName
         return !systemRepository.existsBySystemName(systemName) || curSystemName == systemName
     }
     //유저 정보 수정
@@ -110,30 +111,37 @@ class LoginService(
     //시스템정보수정
     fun updateDBSystem(userEntity: UserEntity,req:UpdateRequest)
     {
-        val userSystems = userSystemRepository.findByUser(userEntity)
-        val system= userSystems[0].system
+        val userSystem = userSystemRepository.findByUser(userEntity)
+        val system= userSystem.system
         system.systemName = req.systemName
         systemRepository.save(system)
     }
-    //유저와 시스템정보 삭제
+
+    //유저와 시스템정보 삭제(수정) + middle기관 삭제할때는 하위기관 삭제 확인해달라? 로컬에서 확인 필요
     fun delUserSystem(systemId:Long)
     {
         val system =systemRepository.findBySystemId(systemId)
-        val admin= userRepository.findByRole(Role.ADMIN)
-        val userSystems= userSystemRepository.findBySystem(system)
-        val user = userSystems.firstOrNull { it.user.role != Role.ADMIN }?.user
-        val userSystem= user?.let { userSystemRepository.findByUserAndSystem(it,system) }
-        val adminSystem=userSystemRepository.findByUserAndSystem(admin,system)
+        val userSystem= userSystemRepository.findBySystem(system)
+        val user = userSystem.user
 
-        if (userSystem != null) {
-            userSystemRepository.delete(userSystem)
-            userSystemRepository.delete(adminSystem)
+        if(systemRepository.existsByParentSystem(system))
+        {
+            throw IllegalArgumentException("하위 기관(시스템)이 존재합니다.")
         }
-        if (user != null) {
-            userRepository.delete(user)
-            systemRepository.delete(system)
+        if(system.isSystem == true ) {
+            val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
+            baseCategorys.forEach { baseCategory ->
+                val detailCategorys =
+                    detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
+                detailCategoryRepository.deleteAll(detailCategorys) // detailCategory 삭제
+            }
+            baseCategoryRepository.deleteAll(baseCategorys) // baseCategory 삭제
         }
+        userSystemRepository.delete(userSystem)
+        userRepository.delete(user)
+        systemRepository.delete(system)
     }
+
 
     //로그아웃한 유저의 토큰을 블랙리스트에 추가
     @Transactional
@@ -147,12 +155,13 @@ class LoginService(
             ResponseEntity.status(HttpStatus.OK).body("이미 만료된 토큰입니다.")
         }
     }
-    //시스템과 연결된 유저정보전달
+    //시스템과 연결된 유저정보전달(수정)
     fun getUserInfor(systemId: Long): InfoResponse
     {
-        val userSystems = userSystemRepository.findBySystemSystemId(systemId)
-        val user = userSystems.first{ it.user.role != Role.ADMIN }.user.asUserDto()
-        val systemName= systemRepository.findBySystemId(systemId).systemName
+        val userSystem = userSystemRepository.findBySystemSystemId(systemId)
+        val user = userSystem.user.asUserDto()
+        val system = systemRepository.findBySystemId(systemId)
+        val systemName= system.systemName
         return user.asInfoResponse(systemName)
     }
 }

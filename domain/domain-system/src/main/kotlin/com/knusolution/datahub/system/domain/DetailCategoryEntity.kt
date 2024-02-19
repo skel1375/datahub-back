@@ -11,7 +11,7 @@ data class DetailCategoryEntity(
 
     @NotNull
     @Column
-    val detailCategoryName:String,
+    var detailCategoryName:String,
 
     @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 설정
     @JoinColumn(name = "baseCategoryId")

@@ -43,7 +43,7 @@ data class UserEntity(
     val role: Role,
 )
 enum class Role{
-    ADMIN,USER
+    ADMIN,MIDDLE,USER
 }
 
 fun UserDto.asEntity(password: String, encoder: PasswordEncoder) =

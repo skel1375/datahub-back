@@ -145,13 +145,13 @@ class QAService(
     //system과user에 연결된 모든 답글과 QA삭제
     fun delAllQaReply(systemId: Long)
     {
-        val userSystems= userSystemRepository.findBySystemSystemId(systemId)
-        val user = userSystems.firstOrNull { it.user.userId != 1L }?.user
-        val replys = user?.let { replyRepository.findByUser(it) }
+        val userSystem= userSystemRepository.findBySystemSystemId(systemId)
+        val user = userSystem.user
+        val replys =  replyRepository.findByUser(user)
         if (replys != null) {
             replyRepository.deleteAllInBatch(replys)
         }
-        val qas = user?.let { qaRepository.findByUser(it) }
+        val qas = qaRepository.findByUser(user)
         if(qas != null){
             qas.forEach{ qa->
                 delQa(user.loginId,qa.qaId)

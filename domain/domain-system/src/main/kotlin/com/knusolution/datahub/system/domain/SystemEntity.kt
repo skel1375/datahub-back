@@ -13,6 +13,17 @@ data class SystemEntity(
     @NotNull
     @Column(unique = true)
     var systemName:String,
+
+    @NotNull
+    @Column
+    val isSystem :Boolean,
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parentSystemId")
+    var parentSystem: SystemEntity? = null,
 )
 
-fun SystemDto.asEntity() = SystemEntity(systemName = this.systemName)
+fun SystemDto.asEntity() = SystemEntity(
+    systemName = this.systemName,
+    isSystem = this.isSystem
+)

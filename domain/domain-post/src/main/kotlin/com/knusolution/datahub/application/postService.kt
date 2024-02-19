@@ -146,22 +146,24 @@ class PostService(
     fun delAllArticle(systemId:Long)
     {
         val system = systemRepository.findBySystemId(systemId)
-            val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
-            baseCategorys.forEach{baseCategory->
-                val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
-                detailCategorys.forEach{detailCategory->
-                    val articles = articleRepository.findByDetailCategory(detailCategory)
-                    articles.forEach{article->
-                        delFile(article.taskFileUrl)
-                        if(article.declineFileUrl != "") {
-                            delFile(article.declineFileUrl)
-                        }
-                        articleRepository.delete(article)
+        if(system.isSystem == false)
+        {
+            throw IllegalArgumentException("시스템이 아닙니다.")
+        }
+        val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
+        baseCategorys.forEach{baseCategory->
+            val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
+            detailCategorys.forEach{detailCategory->
+                val articles = articleRepository.findByDetailCategory(detailCategory)
+                articles.forEach{article->
+                    delFile(article.taskFileUrl)
+                    if(article.declineFileUrl != "") {
+                        delFile(article.declineFileUrl)
                     }
-                    detailCategoryRepository.delete(detailCategory)
+                    articleRepository.delete(article)
                 }
-                baseCategoryRepository.delete(baseCategory)
             }
+        }
     }
 
     fun taskFileDownload(articleId: Long) :ResponseEntity<ByteArray>

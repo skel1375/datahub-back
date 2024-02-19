@@ -13,6 +13,9 @@ data class JoinRequest(
     val contactNum:String,// 시스템 유지보수 업체 연락처
 
     val loginId:String,// 임시로 사용할 로그인 아이디/비밀번호
+
+    val role: Role,
+    val parentSystemId:Long
 )
 
 fun JoinRequest.asUserDto() = UserDto(
@@ -22,9 +25,10 @@ fun JoinRequest.asUserDto() = UserDto(
     departmentName = this.departmentName,
     developerName = this.developerName,
     contactNum = this.contactNum,
-    role = Role.USER,
+    role = this.role,
 )
 
 fun JoinRequest.asSystemDto() = SystemDto(
-    systemName = this.systemName
+    systemName = this.systemName,
+    isSystem = if (role == Role.USER) true else false
 )
