@@ -1,6 +1,7 @@
 package com.knusolution.datahub.domain
 
 import com.knusolution.datahub.system.domain.SystemDto
+import javax.swing.text.StyledEditorKit.BoldAction
 
 data class JoinRequest(
     val systemName:String,// 시스템명
@@ -14,7 +15,7 @@ data class JoinRequest(
 
     val loginId:String,// 임시로 사용할 로그인 아이디/비밀번호
 
-    val role: Role,
+    val isSystem:Boolean,
     val parentSystemId:Long
 )
 
@@ -25,10 +26,10 @@ fun JoinRequest.asUserDto() = UserDto(
     departmentName = this.departmentName,
     developerName = this.developerName,
     contactNum = this.contactNum,
-    role = this.role,
+    role = if(isSystem) Role.USER else Role.MIDDLE
 )
 
 fun JoinRequest.asSystemDto() = SystemDto(
     systemName = this.systemName,
-    isSystem = if (role == Role.USER) true else false
+    isSystem = this.isSystem
 )
