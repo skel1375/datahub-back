@@ -11,6 +11,7 @@ data class ArticleDto(
     val taskFileName:String,
     val declineFileUrl:String,
     val declineFileName:String,
+    val score: Int?,
     val detailCategory : DetailCategoryEntity
 )
 
@@ -22,5 +23,6 @@ fun ArticleEntity.asDto() = ArticleDto(
     taskFileName=this.taskFileName,
     declineFileUrl=this.declineFileUrl,
     declineFileName=this.declineFileName,
+    score = this.score,
     detailCategory = this.detailCategory
 )

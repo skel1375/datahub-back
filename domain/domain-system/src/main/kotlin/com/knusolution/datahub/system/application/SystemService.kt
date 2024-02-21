@@ -42,27 +42,43 @@ class SystemService(
     }
 
     //기관정보 전달
-    fun getOrganization(systemId:Long):SystemPageResponse
+    fun getSystem(systemId:Long):SystemPageResponse
     {
         val parentSystem = systemRepository.findBySystemId(systemId)
-        val organization = systemRepository.findByParentSystemAndSystem(parentSystem,false)?.map{it.asSystemInfo()}
-        val system = systemRepository.findByParentSystemAndSystem(parentSystem,true)?.map{it.asSystemInfo()}
+        val organization = systemRepository.findByParentSystemAndIsSystem(parentSystem,false)?.map{it.asSystemInfo()}
+
+        val baseCategories = baseCategoryRepository.findAllBySystemSystemId(systemId)
+        val detailCategoriesList = mutableListOf<DetailCategoryEntity>()
+        baseCategories.forEach{baseCategory->
+            val detailCategories = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
+            detailCategoriesList.addAll(detailCategories)
+        }
+        val wait = detailCategoriesList.count{it.finalApproval == "대기"}
+        val decline = detailCategoriesList.count{it.finalApproval == "반려"}
+        val accept = detailCategoriesList.count{it.finalApproval == "승인"}
+        val totalScore = detailCategoriesList.sumBy{ it.finalScore ?: 0 }
+        val averScore = totalScore.toFloat() / detailCategoriesList.count{ it.finalScore != null }
+
+        val system = systemRepository.findByParentSystemAndIsSystem(parentSystem,true)?.map{
+            it.asSystemSummary(wait,decline,accept,averScore)}
 
         return SystemPageResponse(organization,system)
     }
+
 
     fun addOutputType(baseCategoryId :Long,output : String)
     {
         val baseCategory = baseCategoryRepository.findByBaseCategoryId(baseCategoryId)
         if(baseCategory.baseCategoryName != "그외 보고서")
             throw(IllegalArgumentException("베이스카테고리를 잘못입력했습니다."))
-        val detailCategory = DetailCategoryDto(detailCategoryName = output).asEntity(baseCategory)
+        val detailCategory = DetailCategoryDto(detailCategoryName = output, finalApproval = null, finalScore = null).asEntity(baseCategory)
         detailCategoryRepository.save(detailCategory)
     }
 
     fun delOutputType(detailCategoryId: Long)
     {
-        detailCategoryRepository.deleteByDetailCategoryId(detailCategoryId)
+        val detailCategory = detailCategoryRepository.findByDetailCategoryId(detailCategoryId)
+        detailCategoryRepository.delete(detailCategory)
     }
 
     fun updateOutputType(detailCategoryId: Long, output:String)

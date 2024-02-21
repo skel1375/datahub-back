@@ -2,6 +2,8 @@ package com.knusolution.datahub.system.domain
 
 import org.jetbrains.annotations.NotNull
 import javax.persistence.*
+import javax.validation.constraints.Null
+
 @Entity
 @Table(name = "DetailCategory")
 data class DetailCategoryEntity(
@@ -13,6 +15,12 @@ data class DetailCategoryEntity(
     @Column
     var detailCategoryName:String,
 
+    @Column
+    var finalApproval:String?,
+
+    @Column
+    var finalScore:Int?,
+
     @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 설정
     @JoinColumn(name = "baseCategoryId")
     val baseCategory: BaseCategoryEntity
@@ -20,5 +28,7 @@ data class DetailCategoryEntity(
 
 fun DetailCategoryDto.asEntity(baseCategory: BaseCategoryEntity) = DetailCategoryEntity(
     detailCategoryName = this.detailCategoryName,
+    finalApproval = this.finalApproval,
+    finalScore = this.finalScore,
     baseCategory = baseCategory
 )

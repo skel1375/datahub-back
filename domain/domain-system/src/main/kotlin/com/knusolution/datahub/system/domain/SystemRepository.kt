@@ -7,5 +7,5 @@ interface SystemRepository:JpaRepository<SystemEntity,Long> {
     fun existsBySystemName(systemName:String):Boolean
     fun existsByParentSystem(system:SystemEntity): Boolean
     fun findByParentSystem(systemEntity: SystemEntity):List<SystemEntity>
-    fun findByParentSystemAndSystem(systemEntity: SystemEntity , isSystem: Boolean):List<SystemEntity>?
+    fun findByParentSystemAndIsSystem(systemEntity: SystemEntity , isSystem: Boolean):List<SystemEntity>?
 }

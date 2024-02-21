@@ -1,5 +1,7 @@
 package com.knusolution.datahub.system.domain
 
+import javax.validation.constraints.Null
+
 data class SystemDto(
     val systemName:String,
     val isSystem:Boolean
@@ -16,17 +18,21 @@ fun BaseCategoryEntity.asDto() = BaseCategoryDto(
 data class DetailCategoryDto(
     val detailCategoryId: Long = 0,
     val detailCategoryName:String,
+    val finalApproval:String?,
+    val finalScore:Int?
 )
 
 fun DetailCategoryEntity.asDto() = DetailCategoryDto(
     detailCategoryId = this.detailCategoryId,
     detailCategoryName = this.detailCategoryName,
+    finalApproval = this.finalApproval,
+    finalScore = this.finalScore
 )
 
 fun getBaseCategory() = baseCategories.map{ BaseCategoryDto(baseCategoryName = it) }
 fun getDetailCategory(baseCategoryName: String) = detailCategories
     .getOrDefault(baseCategoryName, listOf())
-    .map { DetailCategoryDto(detailCategoryName = it) }
+    .map { DetailCategoryDto(detailCategoryName = it, finalApproval = null, finalScore = null) }
 
 val baseCategories = listOf(
     "표준 정의서",

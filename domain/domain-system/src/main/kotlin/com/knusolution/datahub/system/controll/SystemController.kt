@@ -15,7 +15,7 @@ class SystemController(
     private val systemRepository: SystemRepository,
 ) {
     //기본카테고리 정보 전달
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/base-category")
     fun getBaseCategory(@RequestParam systemId:Long): BaseCategoryResponse?
     {
@@ -25,7 +25,7 @@ class SystemController(
         return BaseCategoryResponse(systemName = system.systemName, baseCategories = baseCategories)
     }
     //세부카테고리 정보 전달
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/detail-category")
     fun getDetailCategory(@RequestParam baseCategoryId:Long): DetailCategoryResponse?
     {
@@ -34,21 +34,21 @@ class SystemController(
         return DetailCategoryResponse(detailCategories = detailCategories)
     }
     //사이드바시스템 정보전달
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE')")
     @GetMapping("/side")
     fun getSystemList(@RequestParam systemId: Long):SystemResponse{
         return SystemResponse(systemService.getSide(systemId).map{it.asSystemInfo()})
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    @GetMapping("/organization")
-    fun getOrganization(@RequestParam systemId: Long):SystemPageResponse
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE')")
+    @GetMapping("/system")
+    fun getSystem(@RequestParam systemId: Long):SystemPageResponse
     {
-        return systemService.getOrganization(systemId)
+        return systemService.getSystem(systemId)
     }
 
-    //산출물추가
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    //그외 보고서산출물추가
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @PostMapping("/detail-category/post")
     fun addDetailCategory(
         @RequestParam baseCategoryId: Long,
@@ -58,7 +58,8 @@ class SystemController(
         systemService.addOutputType(baseCategoryId,category)
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    //그외보고서에 들어가는 산출물 삭제
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @DeleteMapping("/detail-category/del")
     fun delDetailCategory(
         @RequestParam detailCategoryId:Long
@@ -67,7 +68,7 @@ class SystemController(
         systemService.delOutputType(detailCategoryId)
     }
 
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @PostMapping("detail-category/update")
     fun updateDetailCategory(
         @RequestParam detailCategoryId: Long,

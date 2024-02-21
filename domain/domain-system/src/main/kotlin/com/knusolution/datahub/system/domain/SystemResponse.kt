@@ -6,5 +6,5 @@ data class SystemResponse(
 
 data class SystemPageResponse(
     val organizations : List<SystemInfo>?,
-    val systems:List<SystemInfo>?
+    val systems:List<systemSummary>?
 )

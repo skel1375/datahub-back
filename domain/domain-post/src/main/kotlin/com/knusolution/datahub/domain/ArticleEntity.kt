@@ -40,6 +40,9 @@ data class ArticleEntity(
     @Column
     var declineFileName : String,
 
+    @Column
+    var score: Int? = null,
+
     @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 설정
     @JoinColumn(name = "detailCategoryId")
     val detailCategory: DetailCategoryEntity
@@ -53,5 +56,6 @@ fun ArticleDto.asEntity( ) = ArticleEntity(
     taskFileName = this.taskFileName,
     declineFileUrl = this.declineFileUrl,
     declineFileName = this.declineFileName,
+    score = this.score,
     detailCategory = this.detailCategory
 )
