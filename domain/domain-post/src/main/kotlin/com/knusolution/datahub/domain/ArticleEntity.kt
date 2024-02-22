@@ -20,8 +20,7 @@ data class ArticleEntity(
     @Column(columnDefinition = "VARCHAR(20) NOT NULL COMMENT 'yyyy-MM-dd HH:mm 형태로 저장'")
     val uploadDate : String,
 
-    @NotNull
-    @Column(columnDefinition = "VARCHAR(10) NOT NULL DEFAULT '대기' COMMENT '업로드된 파일에 대한 승인여부(대기,반려,승인)'")
+    @Column(columnDefinition = "VARCHAR(10) NOT NULL COMMENT '업로드된 파일에 대한 승인여부(대기,반려,승인)'")
     var approval : String,
 
     @NotNull

@@ -46,7 +46,8 @@ subprojects {
 		implementation("com.amazonaws:aws-java-sdk-s3:1.12.281")
 
 		// DB
-		runtimeOnly("mysql:mysql-connector-java:8.0.25")
+//		runtimeOnly("mysql:mysql-connector-java:8.0.25")
+		runtimeOnly ("org.mariadb.jdbc:mariadb-java-client")
 
 		//swagger
 		implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
