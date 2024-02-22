@@ -21,7 +21,7 @@ data class ArticleEntity(
     val uploadDate : String,
 
     @NotNull
-    @Column(columnDefinition = "VARCHAR(10) NOT NULL DEFAULT 대기 COMMENT '업로드된 파일에 대한 승인여부(대기,반려,승인)'")
+    @Column(columnDefinition = "VARCHAR(10) NOT NULL DEFAULT '대기' COMMENT '업로드된 파일에 대한 승인여부(대기,반려,승인)'")
     var approval : String,
 
     @NotNull
