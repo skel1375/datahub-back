@@ -19,7 +19,7 @@ data class SystemEntity(
     val isSystem :Boolean,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parentSystemId")
+    @JoinColumn(name = "parentSystemId" )
     var parentSystem: SystemEntity? = null,
 )
 

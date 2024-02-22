@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull
 import javax.persistence.*
 
 @Entity
-@Table(name = "Reply")
+@Table(name = "reply")
 data class ReplyEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
