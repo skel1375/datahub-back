@@ -39,17 +39,18 @@ class PostService(
     val postPageSize = 10
 
     //대기중 게시물
-    fun getWaitArticles(page : Int) : Page<WaitArticleDto>
-    {
-        val approval = "대기"
-        val pageable = PageRequest.of(page-1,postPageSize, Sort.by("articleId").descending())
-        articleRepository.findAll(pageable)
-        return articleRepository.findAllByApproval(approval,pageable).map{
-            val detailCategoryName = it.detailCategory.detailCategoryName
-            val systemName = it.detailCategory.baseCategory.system.systemName
-            it.asWaitDto(systemName,detailCategoryName)
-        }
-    }
+//    fun getWaitArticles(page : Int) : Page<WaitArticleDto>
+//    {
+//        val approval = "대기"
+//        val pageable = PageRequest.of(page-1,postPageSize, Sort.by("articleId").descending())
+//        articleRepository.findAll(pageable)
+//        return articleRepository.findAllByApproval(approval,pageable).map{
+//            val detailCategoryName = it.detailCategory.detailCategoryName
+//            val systemName = it.detailCategory.baseCategory.system.systemName
+//            it.asWaitDto(systemName,detailCategoryName)
+//        }
+//    }
+
     //세부카테고리의 게시물
     fun getArticles(detailCategoryId: Long,page: Int):Page<ArticleInfoDto>
     {
@@ -71,12 +72,17 @@ class PostService(
         val fileUrl = amazonS3.getUrl(bucket, saveFileName).toString()
 
         val datetime = LocalDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        val article = ArticleDto( datetime , "대기" ,"",fileUrl,originalFileName ?: detailCategory.detailCategoryName ,"","",detailCategory)
-        articleRepository.save(article.asEntity())
+        val article = ArticleDto( datetime , "대기" ,"",fileUrl,originalFileName ?: detailCategory.detailCategoryName, "","",null,detailCategory).asEntity()
+        detailCategory.finalApproval ="대기"
+        detailCategory.finalScore=null
+        detailCategoryRepository.save(detailCategory)
+        articleRepository.save(article)
     }
     //게시물 승인여부와 관련파일 저장
-    fun postDeclineFile(articleId : Long , approval : String , declineDetail : String? , file : MultipartFile?){
+    fun postDeclineFile(articleId : Long , approval : String ,score:Int?, declineDetail : String? , file : MultipartFile?){
         val article = articleRepository.findByArticleId(articleId)
+        if(score != null)
+            article.score =score
         article.approval = approval
         if(approval == "반려" && file != null && declineDetail!= null ) {
             val originalFileName = file.originalFilename
@@ -90,19 +96,28 @@ class PostService(
             article.declineDetail = declineDetail
             article.declineFileName = originalFileName ?: "declineFile"
             article.declineFileUrl = fileUrl
-
         }
+
         articleRepository.save(article)
+
+        val detailCategory = article.detailCategory
+        val latestArticle = articleRepository.findByDetailCategory(detailCategory).maxByOrNull { it.articleId }
+        if (latestArticle != null) {
+            detailCategory.finalApproval = latestArticle.approval
+            detailCategory.finalScore=latestArticle.score
+            detailCategoryRepository.save(detailCategory)
+        }
+
     }
     //게시물 수정
-    fun updateArticle(articleId:Long,approval: String,declineDetail: String?,file: MultipartFile?)
+    fun updateArticle(articleId:Long,approval: String,score:Int?,declineDetail: String?,file: MultipartFile?)
     {
         val article = articleRepository.findByArticleId(articleId)
         if(article.approval == "승인") {
             if (approval == "반려") {
                 if (file == null)
                     throw IllegalArgumentException("File cannot be null for article rejection.")
-                postDeclineFile(articleId, approval, declineDetail, file)
+                postDeclineFile(articleId, approval, score,declineDetail, file)
             }
         }
         else
@@ -121,7 +136,7 @@ class PostService(
                 if(file != null)
                 {
                     delFile(article.declineFileUrl)
-                    postDeclineFile(articleId, approval, declineDetail, file)
+                    postDeclineFile(articleId, approval, score,declineDetail, file)
                 }
                 else if(declineDetail != null) {
                     article.declineDetail = declineDetail
@@ -141,27 +156,47 @@ class PostService(
             delFile(article.declineFileUrl)
         }
         articleRepository.delete(article)
+
+        val detailCategory = article.detailCategory
+        val latestArticle = articleRepository.findByDetailCategory(detailCategory).maxByOrNull { it.articleId }
+        if(latestArticle != null) {
+            detailCategory.finalApproval = latestArticle.approval
+            detailCategory.finalScore=latestArticle.score
+            detailCategoryRepository.save(detailCategory)
+        }
+        else
+        {
+            detailCategory.finalApproval = null
+            detailCategory.finalScore= null
+            detailCategoryRepository.save(detailCategory)
+        }
     }
+
     //시스템과 연관된 모든 게시물 삭제
     fun delAllArticle(systemId:Long)
     {
         val system = systemRepository.findBySystemId(systemId)
-            val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
-            baseCategorys.forEach{baseCategory->
-                val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
-                detailCategorys.forEach{detailCategory->
-                    val articles = articleRepository.findByDetailCategory(detailCategory)
-                    articles.forEach{article->
-                        delFile(article.taskFileUrl)
-                        if(article.declineFileUrl != "") {
-                            delFile(article.declineFileUrl)
-                        }
-                        articleRepository.delete(article)
+        if(system.isSystem == false)
+        {
+            throw IllegalArgumentException("시스템이 아닙니다.")
+        }
+        val baseCategorys = baseCategoryRepository.findAllBySystemSystemId(system.systemId)
+        baseCategorys.forEach{baseCategory->
+            val detailCategorys = detailCategoryRepository.findAllByBaseCategoryBaseCategoryId(baseCategory.baseCategoryId)
+            detailCategorys.forEach{detailCategory->
+                val articles = articleRepository.findByDetailCategory(detailCategory)
+                articles.forEach{article->
+                    delFile(article.taskFileUrl)
+                    if(article.declineFileUrl != "") {
+                        delFile(article.declineFileUrl)
                     }
-                    detailCategoryRepository.delete(detailCategory)
+                    articleRepository.delete(article)
                 }
-                baseCategoryRepository.delete(baseCategory)
+                detailCategory.finalScore =null
+                detailCategory.finalApproval = null
+                detailCategoryRepository.save(detailCategory)
             }
+        }
     }
 
     fun taskFileDownload(articleId: Long) :ResponseEntity<ByteArray>

@@ -8,10 +8,10 @@ data class UserDto(
     val department:String,
     val departmentName:String,
     val role: Role,
-    val systemIds : List<Long> = listOf(),
+//    val systemIds : List<Long> = listOf(),
 )
 
-fun UserEntity.asUserDto(systemIds:List<Long> = listOf()) = UserDto(
+fun UserEntity.asUserDto() = UserDto(
     loginId = loginId,
     companyName = companyName,
     developerName = developerName,
@@ -19,5 +19,5 @@ fun UserEntity.asUserDto(systemIds:List<Long> = listOf()) = UserDto(
     department = department,
     departmentName = departmentName,
     role = role,
-    systemIds = systemIds,
+//    systemIds = systemIds,
 )

@@ -16,7 +16,7 @@ class QAController(
     private val qaService : QAService
 ){
     //QA리스트 전달
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/qa")
     fun getQas(
         @RequestParam page:Int
@@ -25,7 +25,7 @@ class QAController(
         return qaService.getQa(page)
     }
     //QA검색
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/qa/search")
     fun searchQA(
         @RequestParam page:Int,
@@ -47,7 +47,7 @@ class QAController(
         throw IllegalArgumentException("searchBy 값을 다시 확인해주세요.")
     }
     //QA저장
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @PostMapping("/qa/post")
     fun saveQa(
         @RequestParam loginId:String,
@@ -58,7 +58,7 @@ class QAController(
         qaService.saveQa(loginId,qaTitle,qaContent)
     }
     //QA수정
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @PutMapping("/qa/update")
     fun updateQa(
         @RequestParam loginId: String,
@@ -70,7 +70,7 @@ class QAController(
         return qaService.updateQa(loginId,qaId,updateTitle,updateContent)
     }
     //QA삭제
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @DeleteMapping("/qa/del")
     fun delQa(
         @RequestParam loginId: String,
@@ -80,7 +80,7 @@ class QAController(
         return qaService.delQa(loginId,qaId)
     }
     //QA에 해당하는 답글 리스트
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/qa/content")
     fun getQaContentReply(
         @RequestParam qaId: Long
@@ -93,7 +93,7 @@ class QAController(
         return ReplyResponse(qa=qa,content=content, replys = replys)
     }
     //답글 추가
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @PostMapping("/reply/addition")
     fun saveReply(
         @RequestParam loginId: String,
@@ -104,7 +104,7 @@ class QAController(
         qaService.saveReply(loginId = loginId, qaId = qaId, replyContent = replyContent)
     }
     //답글 수정
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @PutMapping("/reply/update")
     fun updateReply(
         @RequestParam loginId: String,
@@ -115,7 +115,7 @@ class QAController(
         return qaService.updateReply(loginId = loginId,replyId = replyId, updateContent = updateContent)
     }
     //답글 삭제
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @DeleteMapping("/reply/del")
     fun delReply(
         @RequestParam loginId: String,
@@ -125,7 +125,7 @@ class QAController(
         return qaService.delReply(loginId = loginId ,replyId = replyId)
     }
     //system과user에 연결된 모든 QA와 답글 삭제
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @DeleteMapping("/qa/clear")
     fun delAllQaReply(@RequestParam systemId:Long)
     {

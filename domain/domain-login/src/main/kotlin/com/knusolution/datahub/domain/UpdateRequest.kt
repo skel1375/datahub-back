@@ -18,24 +18,26 @@ data class UpdateRequest(
 )
 
 fun UpdateRequest.updateUserEntity(userEntity: UserEntity,encoder: PasswordEncoder) = userEntity.also {
-
-
     it.loginId = this.loginId
     it.password = encoder.encode(this.password)
     it.departmentName = this.departmentName
     it.department = this.department
+    it.companyName = this.companyName
+    it.developerName=this.developerName
     it.contactNum = this.contactNum
 }
-fun UpdateRequest.asUserDto() = UserDto(
-    loginId = this.loginId,
-    companyName = this.companyName,
-    department = this.department,
-    departmentName = this.departmentName,
-    developerName = this.developerName,
-    contactNum = this.contactNum,
-    role = Role.USER,
-)
 
-fun UpdateRequest.asSystemDto() = SystemDto(
-    systemName = this.systemName
-)
+//fun UpdateRequest.asUserDto() = UserDto(
+//    loginId = this.loginId,
+//    companyName = this.companyName,
+//    department = this.department,
+//    departmentName = this.departmentName,
+//    developerName = this.developerName,
+//    contactNum = this.contactNum,
+//    role = Role.USER,
+//)
+
+//fun UpdateRequest.asSystemDto() = SystemDto(
+//    systemName = this.systemName,
+//    isSystem =
+//)

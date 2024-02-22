@@ -13,7 +13,7 @@ class NoticeController(
         private val noticeService: NoticeService
 ) {
     //공지사항 리스트 전달
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/notice")
     fun getNotice(@RequestParam page:Int) : Page<NoticeInfoDto>
     {
@@ -21,7 +21,7 @@ class NoticeController(
     }
 
     //공지사항 조회
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/notice/content")
     fun getNotice(@RequestParam noticeId: Long): NoticeContentResponse? {
         return noticeService.getNoticeData(noticeId)
@@ -56,7 +56,7 @@ class NoticeController(
     }
 
     //공지사항 검색
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/notice/search")
     fun searchNotice(
         @RequestParam page: Int,
@@ -74,7 +74,7 @@ class NoticeController(
     }
 
     //파일 다운로드
-    @PreAuthorize("hasAnyAuthority('ADMIN','USER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','MIDDLE','USER')")
     @GetMapping("/notice/file/download")
     fun noticeFileDownload(
         @RequestParam fileId : Long

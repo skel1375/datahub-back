@@ -5,8 +5,8 @@ data class InfoResponse(
     val user: UserDto
 )
 
-fun UserDto.asInfoResponse(systemName: String)=
+fun UserDto.asInfoResponse(systemName: String,)=
     InfoResponse(
         systemName = systemName,
-        user = this
+        user = this,
     )

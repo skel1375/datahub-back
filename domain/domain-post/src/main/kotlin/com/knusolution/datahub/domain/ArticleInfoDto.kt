@@ -9,6 +9,7 @@ data class ArticleInfoDto(
     val taskFileName:String,
     val declineFileUrl:String,
     val declineFileName:String,
+    val score:Int?,
 )
 
 fun ArticleEntity.asInfoDto() = ArticleInfoDto(
@@ -19,5 +20,6 @@ fun ArticleEntity.asInfoDto() = ArticleInfoDto(
     taskFileUrl = this.taskFileUrl,
     taskFileName = this.taskFileName,
     declineFileUrl = this.declineFileUrl,
-    declineFileName = this.declineFileName
+    declineFileName = this.declineFileName,
+    score = this.score
 )
