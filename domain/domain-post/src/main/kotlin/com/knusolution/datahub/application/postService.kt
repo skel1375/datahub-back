@@ -149,7 +149,13 @@ class PostService(
                 }
             }
         }
-
+        val detailCategory = article.detailCategory
+        val latestArticle = articleRepository.findByDetailCategory(detailCategory).maxByOrNull { it.articleId }
+        if (latestArticle != null) {
+            detailCategory.finalApproval = latestArticle.approval
+            detailCategory.finalScore=latestArticle.score
+            detailCategoryRepository.save(detailCategory)
+        }
     }
     //게시물 삭제
     fun delArticle(articleId : Long)
