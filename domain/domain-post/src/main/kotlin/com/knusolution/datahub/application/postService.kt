@@ -118,6 +118,9 @@ class PostService(
                 if (file == null)
                     throw IllegalArgumentException("File cannot be null for article rejection.")
                 postDeclineFile(articleId, approval, score,declineDetail, file)
+            } else {
+                article.score = score
+                articleRepository.save(article)
             }
         }
         else
@@ -129,6 +132,7 @@ class PostService(
                 article.declineFileUrl = ""
                 article.declineDetail=""
                 article.declineFileName=""
+                article.score = score
                 articleRepository.save(article)
             }
             else
@@ -140,6 +144,7 @@ class PostService(
                 }
                 else if(declineDetail != null) {
                     article.declineDetail = declineDetail
+                    article.score = score
                     articleRepository.save(article)
                 }
             }
