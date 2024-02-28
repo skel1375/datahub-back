@@ -118,6 +118,9 @@ class PostService(
                 if (file == null)
                     throw IllegalArgumentException("File cannot be null for article rejection.")
                 postDeclineFile(articleId, approval, score,declineDetail, file)
+            } else {
+                article.score = score
+                articleRepository.save(article)
             }
         }
         else
@@ -129,6 +132,7 @@ class PostService(
                 article.declineFileUrl = ""
                 article.declineDetail=""
                 article.declineFileName=""
+                article.score = score
                 articleRepository.save(article)
             }
             else
@@ -140,11 +144,18 @@ class PostService(
                 }
                 else if(declineDetail != null) {
                     article.declineDetail = declineDetail
+                    article.score = score
                     articleRepository.save(article)
                 }
             }
         }
-
+        val detailCategory = article.detailCategory
+        val latestArticle = articleRepository.findByDetailCategory(detailCategory).maxByOrNull { it.articleId }
+        if (latestArticle != null) {
+            detailCategory.finalApproval = latestArticle.approval
+            detailCategory.finalScore=latestArticle.score
+            detailCategoryRepository.save(detailCategory)
+        }
     }
     //게시물 삭제
     fun delArticle(articleId : Long)

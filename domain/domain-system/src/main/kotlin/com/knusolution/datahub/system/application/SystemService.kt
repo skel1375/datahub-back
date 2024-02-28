@@ -46,7 +46,20 @@ class SystemService(
     {
         val parentSystem = systemRepository.findBySystemId(systemId)
         val organization = systemRepository.findByParentSystemAndIsSystem(parentSystem,false)?.map{it.asSystemInfo()}
+        val system = systemRepository.findByParentSystemAndIsSystem(parentSystem,true)
 
+        val systemInfo:MutableList<systemSummary> = mutableListOf()
+        if (system != null) {
+            system.forEach{
+                systemInfo.add(getSystemInfo(it.systemId))
+            }
+        }
+
+        return SystemPageResponse(organization,systemInfo)
+    }
+
+    private fun getSystemInfo(systemId:Long):systemSummary
+    {
         val baseCategories = baseCategoryRepository.findAllBySystemSystemId(systemId)
         val detailCategoriesList = mutableListOf<DetailCategoryEntity>()
         baseCategories.forEach{baseCategory->
@@ -58,11 +71,9 @@ class SystemService(
         val accept = detailCategoriesList.count{it.finalApproval == "승인"}
         val totalScore = detailCategoriesList.sumBy{ it.finalScore ?: 0 }
         val averScore = totalScore.toFloat() / detailCategoriesList.count{ it.finalScore != null }
+        val system = systemRepository.findBySystemId(systemId).asSystemSummary(wait,decline,accept,averScore)
 
-        val system = systemRepository.findByParentSystemAndIsSystem(parentSystem,true)?.map{
-            it.asSystemSummary(wait,decline,accept,averScore)}
-
-        return SystemPageResponse(organization,system)
+        return system
     }
 
 
